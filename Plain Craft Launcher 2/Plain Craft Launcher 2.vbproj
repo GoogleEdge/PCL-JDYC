@@ -257,6 +257,7 @@
     <Compile Include="Modules\ModDevelop.vb" />
     <Compile Include="Modules\Minecraft\ModWatcher.vb" />
     <Compile Include="Modules\ModSecret.vb" />
+    <Compile Include="Modules\ModJdyc.vb" />
     <Compile Include="Pages\PageDownload\Resource\PageResource.xaml.vb">
       <DependentUpon>PageResource.xaml</DependentUpon>
     </Compile>
@@ -294,6 +295,9 @@
     </Compile>
     <Compile Include="Pages\PageLaunch\PageLoginAuthSkin.xaml.vb">
       <DependentUpon>PageLoginAuthSkin.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\PageLaunch\PageLoginJdycSkin.xaml.vb">
+      <DependentUpon>PageLoginJdycSkin.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\PageLaunch\PageLoginMs.xaml.vb">
       <DependentUpon>PageLoginMs.xaml</DependentUpon>
@@ -386,6 +390,9 @@
     </Compile>
     <Compile Include="Pages\PageSetup\PageSetupUI.xaml.vb">
       <DependentUpon>PageSetupUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\PageSetup\PageSetupJdyc.xaml.vb">
+      <DependentUpon>PageSetupJdyc.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\PageSetup\SettingService.vb" />
     <Compile Include="Pages\PageSpeedLeft.xaml.vb">
@@ -548,6 +555,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Pages\PageLaunch\PageLoginJdycSkin.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Pages\PageLaunch\PageLoginMs.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -643,6 +654,10 @@
     <Page Include="Pages\PageSetup\PageSetupUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\PageSetup\PageSetupJdyc.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\PageSpeedLeft.xaml">
       <SubType>Designer</SubType>

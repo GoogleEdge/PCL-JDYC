@@ -421,6 +421,13 @@ Public Class FormMain
         '加载池
         RunInNewThread(
         Sub()
+            '揭东一初皮肤站强制登录门：未登录且未通过学生认证时，
+            '用原生弹窗挡住，直到登录完成；注册按钮只开注册页，弹窗保持。
+            Try
+                JdycGate()
+            Catch ex As Exception
+                Logger.Error(ex, "皮肤站登录门运行失败")
+            End Try
             'EULA 提示
             Const EulaVersion As Integer = 2
             If Settings.Get(Of Integer)("SystemEulaVersion") < EulaVersion Then
@@ -1246,6 +1253,7 @@ Public Class FormMain
         SetupLink = 1
         SetupUI = 2
         SetupSystem = 3
+        SetupJdyc = 4
         LinkMain = 0
         OtherHelp = 0
         OtherAbout = 1

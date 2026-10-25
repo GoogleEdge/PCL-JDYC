@@ -298,6 +298,8 @@ NextInner:
         Nide = 2
         Auth = 3
         Ms = 5
+        '揭东一初皮肤站登录（Blessing Skin OAuth + JDYC 插件桥接，见 ModJdyc）
+        Jdyc = 6
     End Enum
 
     '各个登录方式的对应数据
@@ -389,6 +391,19 @@ NextInner:
         End Function
     End Class
 
+    Public Class McLoginJdyc
+        Inherits McLoginData
+        Public PlayerPid As Integer
+        Public PlayerName As String
+
+        Public Sub New()
+            Type = McLoginType.Jdyc
+        End Sub
+        Public Overrides Function GetHashCode() As Integer
+            Return (PlayerPid & PlayerName & Type).GetStableHashCode() Mod Integer.MaxValue
+        End Function
+    End Class
+
     '登录返回结果
     Public Structure McLoginResult
         Public Name As String
@@ -416,11 +431,14 @@ NextInner:
                 If Settings.Get(Of String)("CacheNideName") <> "" Then Return Settings.Get(Of String)("CacheNideName")
             Case McLoginType.Auth
                 If Settings.Get(Of String)("CacheAuthName") <> "" Then Return Settings.Get(Of String)("CacheAuthName")
+            Case McLoginType.Jdyc
+                If Settings.Get(Of String)("CacheJdycPlayerName") <> "" Then Return Settings.Get(Of String)("CacheJdycPlayerName")
         End Select
         '查找所有可能的项
         If Settings.Get(Of String)("CacheMsV2Name") <> "" Then Return Settings.Get(Of String)("CacheMsV2Name")
         If Settings.Get(Of String)("CacheNideName") <> "" Then Return Settings.Get(Of String)("CacheNideName")
         If Settings.Get(Of String)("CacheAuthName") <> "" Then Return Settings.Get(Of String)("CacheAuthName")
+        If Settings.Get(Of String)("CacheJdycPlayerName") <> "" Then Return Settings.Get(Of String)("CacheJdycPlayerName")
         If Settings.Get(Of String)("LoginLegacyName") <> "" Then Return Settings.Get(Of String)("LoginLegacyName").ToString.BeforeFirst("¨")
         Return Nothing
     End Function
@@ -449,6 +467,12 @@ NextInner:
                 Else
                     Return ""
                 End If
+            Case McLoginType.Jdyc
+                If Not JdycIsLoggedIn() Then
+                    Return "请先完成我校皮肤站登录（启动器启动时会弹出皮肤站登录窗口）。"
+                Else
+                    Return ""
+                End If
             Case Else
                 Return "未知的登录方式"
         End Select
@@ -466,6 +490,8 @@ NextInner:
                 Return PageLoginNide.IsVaild(LoginData)
             Case McLoginType.Auth
                 Return PageLoginAuth.IsVaild(LoginData)
+            Case McLoginType.Jdyc
+                Return ""
             Case Else
                 Return "未知的登录方式"
         End Select
@@ -499,6 +525,11 @@ NextInner:
                     Else
                         LoginData = PageLoginAuthSkin.GetLoginData()
                     End If
+                Case McLoginType.Jdyc
+                    '皮肤站登录不需要登录页输入，角色和会话在 McLoginJdycStart 里处理
+                    LoginData = New McLoginJdyc With {
+                        .PlayerPid = Settings.Get(Of Integer)("CacheJdycPlayerPid"),
+                        .PlayerName = Settings.Get(Of String)("CacheJdycPlayerName")}
             End Select
             Return LoginData
         Catch ex As Exception
@@ -521,6 +552,8 @@ NextInner:
                 Loader = McLoginNideLoader
             Case McLoginType.Auth
                 Loader = McLoginAuthLoader
+            Case McLoginType.Jdyc
+                Loader = McLoginJdycLoader
         End Select
         '尝试加载
         Loader.WaitForExit(Data.Input, McLoginLoader, Data.IsForceRestarting)
@@ -537,6 +570,57 @@ NextInner:
     Public McLoginLegacyLoader As New LoaderTask(Of McLoginLegacy, McLoginResult)("Loader Login Legacy", AddressOf McLoginLegacyStart)
     Public McLoginNideLoader As New LoaderTask(Of McLoginServer, McLoginResult)("Loader Login Nide", AddressOf McLoginServerStart) With {.ReloadTimeout = 1000 * 60 * 10}
     Public McLoginAuthLoader As New LoaderTask(Of McLoginServer, McLoginResult)("Loader Login Auth", AddressOf McLoginServerStart) With {.ReloadTimeout = 1000 * 60 * 10}
+    '揭东一初皮肤站登录：不走账号密码，走 OAuth + JDYC 插件签发的 Yggdrasil 会话
+    Public McLoginJdycLoader As New LoaderTask(Of McLoginJdyc, McLoginResult)("Loader Login Jdyc", AddressOf McLoginJdycStart) With {.ReloadTimeout = 1000 * 60 * 10}
+
+    Private Sub McLoginJdycStart(Data As LoaderTask(Of McLoginJdyc, McLoginResult))
+        McLaunchLog("登录方式：我校皮肤站登陆")
+        If Not JdycIsLoggedIn() Then
+            '启动前未登录：重新走一次 OAuth（会开浏览器），失败则启动失败
+            If Not JdycLogin() Then Throw New Exception("皮肤站登录未完成")
+        End If
+        If Not JdycEnsureToken() Then Throw New Exception("皮肤站登录已过期，请重新登录。")
+        '学生认证复查：被退回或取消后，启动也必须挡住
+        Dim Student = JdycStudentStatus()
+        If Not Student.Value(Of Boolean)("approved") Then
+            JdycLogout()
+            Throw New Exception("学生认证未通过，无法启动游戏。请先到皮肤站完成学生认证。")
+        End If
+        '选角色：缓存里没有就让玩家选一个（多角色时弹窗选择，单角色直接用）
+        Dim PlayerPid = Settings.Get(Of Integer)("CacheJdycPlayerPid")
+        If PlayerPid = 0 Then
+            Dim Players = JdycPlayers()
+            If Players Is Nothing OrElse Players.Count = 0 Then Throw New Exception("皮肤站账号下还没有角色，请先到皮肤站新建一个角色。")
+            If Players.Count = 1 Then
+                PlayerPid = Players(0).Value(Of Integer)("pid")
+            Else
+                RunInUiWait(
+                Sub()
+                    Dim SelectionControl As New List(Of IMyRadio)
+                    For Each P In Players
+                        SelectionControl.Add(New MyRadioBox With {.Text = P.Value(Of String)("name")})
+                    Next
+                    Dim SelectedIndex As Integer = MyMsgBoxSelect(SelectionControl, "选择使用的角色")
+                    PlayerPid = Players(SelectedIndex).Value(Of Integer)("pid")
+                End Sub)
+            End If
+            Settings.Set("CacheJdycPlayerPid", PlayerPid)
+        End If
+        '签发 Yggdrasil 会话，并把本实例的 Auth 服务器写死为皮肤站，
+        '这样后面的 Authlib-Injector 启动参数（Type = "Auth"）直接复用原有逻辑。
+        Dim Session = JdycYggdrasilSession(PlayerPid)
+        If McInstanceSelected IsNot Nothing Then
+            Settings.Set("VersionServerAuthServer", JdycYggRoot, Instance:=McInstanceSelected)
+            Settings.Set("VersionServerAuthName", "我校皮肤站", Instance:=McInstanceSelected)
+        End If
+        Data.Output = New McLoginResult With {
+            .AccessToken = Session.Value(Of String)("accessToken"),
+            .ClientToken = Session.Value(Of String)("clientToken"),
+            .Name = Session("selectedProfile").Value(Of String)("name"),
+            .Uuid = Session("selectedProfile").Value(Of String)("id"),
+            .Type = "Auth"}
+        McLaunchLog("皮肤站登录成功，角色：" & Data.Output.Name)
+    End Sub
 
     '主加载函数，返回所有需要的登录信息
     Private Sub McLoginMsStart(Data As LoaderTask(Of McLoginMs, McLoginResult))

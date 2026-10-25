@@ -109,7 +109,7 @@ Public Class PageLaunchLeft
 
         '改变页面
         Dim LoginType = Settings.Get(Of McLoginType)("LoginType")
-        If LoginType = McLoginType.Legacy OrElse LoginType = McLoginType.Ms Then CType(FindName("RadioLoginType" & LoginType), MyRadioButton).Checked = True
+        If LoginType = McLoginType.Legacy OrElse LoginType = McLoginType.Ms OrElse LoginType = McLoginType.Jdyc Then CType(FindName("RadioLoginType" & LoginType), MyRadioButton).Checked = True
         RefreshPage(False, False)
 
         AniControlEnabled -= 1
@@ -131,6 +131,8 @@ Public Class PageLaunchLeft
                 LabLaunchingMethod.Text = "统一通行证"
             Case McLoginType.Auth
                 LabLaunchingMethod.Text = "Authlib-Injector"
+            Case McLoginType.Jdyc
+                LabLaunchingMethod.Text = "我校皮肤站登陆"
         End Select
         '初始化页面
         LabLaunchingName.Text = McInstanceSelected.Name
@@ -200,6 +202,7 @@ Public Class PageLaunchLeft
         AuthSkin
         Ms
         MsSkin
+        JdycSkin
     End Enum
     ''' <summary>
     ''' 当前页面的种类。
@@ -229,6 +232,9 @@ Public Class PageLaunchLeft
             Case PageType.MsSkin
                 If IsNothing(FrmLoginMsSkin) Then FrmLoginMsSkin = New PageLoginMsSkin
                 Return FrmLoginMsSkin
+            Case PageType.JdycSkin
+                If IsNothing(FrmLoginJdycSkin) Then FrmLoginJdycSkin = New PageLoginJdycSkin
+                Return FrmLoginJdycSkin
             Case Else
                 Throw New ArgumentOutOfRangeException("Type", "即将切换的登录分页编号越界")
         End Select
@@ -300,7 +306,7 @@ Public Class PageLaunchLeft
             LoginPageType = Settings.Get(Of Integer)("LoginPageType")
         End If
         Select Case LoginPageType
-            Case 0 '正版或离线
+            Case 0 '正版、皮肤站或离线
 UnknownType:
                 If RadioLoginType5.Checked Then
                     If Settings.Get(Of String)("CacheMsV2Access") = "" Then
@@ -309,14 +315,31 @@ UnknownType:
                         Type = PageType.MsSkin
                     End If
                     Settings.Set("LoginType", McLoginType.Ms)
-                Else
+                ElseIf RadioLoginType6.Checked Then
+                    Type = PageType.JdycSkin
+                    Settings.Set("LoginType", McLoginType.Jdyc)
+                ElseIf JdycAllowOffline() Then
                     Type = PageType.Legacy
                     Settings.Set("LoginType", McLoginType.Legacy)
+                Else
+                    '离线未打开：之前选了离线时回落到皮肤站（已登录）或正版
+                    If JdycIsLoggedIn() Then
+                        Type = PageType.JdycSkin
+                        Settings.Set("LoginType", McLoginType.Jdyc)
+                    Else
+                        If Settings.Get(Of String)("CacheMsV2Access") = "" Then
+                            Type = PageType.Ms
+                        Else
+                            Type = PageType.MsSkin
+                        End If
+                        Settings.Set("LoginType", McLoginType.Ms)
+                    End If
                 End If
                 PanType.Visibility = Visibility.Visible
                 PanTypeOne.Visibility = Visibility.Collapsed
                 RadioLoginType5.Visibility = Visibility.Visible
-                RadioLoginType0.Visibility = Visibility.Visible
+                RadioLoginType6.Visibility = Visibility.Visible
+                RadioLoginType0.Visibility = If(JdycAllowOffline(), Visibility.Visible, Visibility.Collapsed)
             Case 1 '仅正版
                 If Settings.Get(Of String)("CacheMsV2Access") = "" Then
                     Type = PageType.Ms
@@ -596,9 +619,46 @@ Finish:
         End If
     End Sub
 
+    '我校皮肤站皮肤：和 Auth 一样走 Yggdrasil profile，
+    '但服务器写死为皮肤站，且输入用皮肤站缓存的角色名/UUID。
+    '注意：启动加载器会在启动时把本实例的 Auth 服务器写为皮肤站，
+    '这里再兜底一次，避免还没启动过时皮肤页取不到地址。
+    Public Shared SkinJdyc As New LoaderTask(Of (String, String), String)("Loader Skin Jdyc", AddressOf SkinJdycLoad, AddressOf SkinJdycInput, ThreadPriority.AboveNormal)
+    Private Shared Function SkinJdycInput() As (String, String)
+        Return (Settings.Get(Of String)("CacheJdycPlayerName"), Settings.Get(Of String)("CacheJdycPlayerUuid"))
+    End Function
+    Private Shared Sub SkinJdycLoad(Data As LoaderTask(Of (String, String), String))
+        RunInUi(Sub() If FrmLoginJdycSkin IsNot Nothing AndAlso FrmLoginJdycSkin.Skin IsNot Nothing Then FrmLoginJdycSkin.Skin.Clear())
+        Dim UserName As String = Data.Input.Item1
+        Dim UUID As String = Data.Input.Item2
+        If UserName = "" OrElse UUID = "" Then
+            Data.Output = PathImage & "Skins/Steve.png"
+            GoTo FinishJdyc
+        End If
+        If McInstanceSelected IsNot Nothing Then
+            Settings.Set("VersionServerAuthServer", JdycYggRoot, Instance:=McInstanceSelected)
+        End If
+        Try
+            Dim Result As String = McSkinGetAddress(UUID, "Auth")
+            If Data.IsCanceled Then Throw New OperationCanceledException("当前任务已取消：" & UserName)
+            Result = McSkinDownload(Result)
+            If Data.IsCanceled Then Throw New OperationCanceledException("当前任务已取消：" & UserName)
+            Data.Output = Result
+        Catch ex As Exception
+            Data.Output = PathImage & "Skins/Steve.png"
+            If Not ex.IsCanceled Then Logger.Warn(ex, $"获取皮肤站皮肤失败（{UserName}）")
+        End Try
+FinishJdyc:
+        If FrmLoginJdycSkin IsNot Nothing Then
+            RunInUi(AddressOf FrmLoginJdycSkin.Skin.Load)
+        ElseIf Not Data.IsCanceled Then
+            Data.Input = Nothing
+        End If
+    End Sub
+
     '全部皮肤加载器
     '需要放在其中元素的后面，否则会因为它提前被加载而莫名其妙变成 Nothing
-    Public Shared SkinLoaders As New List(Of LoaderTask(Of (String, String), String)) From {SkinMs, SkinLegacy, SkinNide, SkinAuth}
+    Public Shared SkinLoaders As New List(Of LoaderTask(Of (String, String), String)) From {SkinMs, SkinLegacy, SkinNide, SkinAuth, SkinJdyc}
 
 #End Region
 

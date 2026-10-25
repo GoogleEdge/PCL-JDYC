@@ -391,6 +391,7 @@ EndHint:
     Public FrmSetupUI As PageSetupUI
     Public FrmSetupSystem As PageSetupSystem
     Public FrmSetupLink As PageSetupLink
+    Public FrmSetupJdyc As PageSetupJdyc
 
     '其他页面声明
     Public FrmOtherLeft As PageOtherLeft
@@ -404,6 +405,7 @@ EndHint:
     Public FrmLoginNideSkin As PageLoginNideSkin
     Public FrmLoginAuth As PageLoginAuth
     Public FrmLoginAuthSkin As PageLoginAuthSkin
+    Public FrmLoginJdycSkin As PageLoginJdycSkin
     Public FrmLoginMs As PageLoginMs
     Public FrmLoginMsSkin As PageLoginMsSkin
 
