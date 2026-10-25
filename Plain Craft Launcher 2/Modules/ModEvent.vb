@@ -337,10 +337,10 @@ Public Class CustomEvent
                     RunInUi(
                     Sub()
                         If String.IsNullOrWhiteSpace(Arg) Then
-                            PageLinkMain.Join()
+                            PageJdycHub.Join()
                         Else
                             If Not EventSafetyConfirm("即将加入第三方联机房间。") Then Return
-                            PageLinkMain.Join(Arg)
+                            PageJdycHub.Join(Arg)
                         End If
                     End Sub)
 
