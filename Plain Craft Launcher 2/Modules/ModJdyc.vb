@@ -17,7 +17,9 @@ Public Module ModJdyc
     Public Const JdycYggRoot As String = "https://mcskin.jdyc.top/api/yggdrasil"
     Public Const JdycOAuthClientId As Integer = 1
     Public Const JdycRedirectUri As String = "http://127.0.0.1:8765/oauth/callback"
-    Public Const JdycScopes As String = "User.Read Player.Read Player.ReadWrite Closet.Read Closet.ReadWrite"
+    '注意：Blessing Skin 核心把 Closet 写权限 scope 注册成了拼写错误的 Closet.ReadWrtie（Wrtie），
+    '请求正确拼写的 Closet.ReadWrite 会被 Passport 以 invalid_scope 拒绝，故此处必须用服务器实际注册的拼写。
+    Public Const JdycScopes As String = "User.Read Player.Read Player.ReadWrite Closet.Read Closet.ReadWrtie"
 
     ''' <summary>离线登录是否被允许。默认关：只有在设置里打开后，离线登录才可用。</summary>
     Public Function JdycAllowOffline() As Boolean
@@ -56,7 +58,7 @@ Public Module ModJdyc
             Dim Result = MyMsgBox(
                 "欢迎使用揭东一初 PCL 启动器。" & vbCrLf & vbCrLf &
                 "使用本启动器需要先登录我校皮肤站（mcskin.jdyc.top），" &
-                "并完成学生认证。登录后启动器会自动配好“我校皮肤站登陆”，" &
+                "并完成学生认证。登录后启动器会自动配好我校皮肤站登陆，" &
                 "不用再像 authlib 那样手动填服务器地址和账号。" & vbCrLf & vbCrLf &
                 "正版登录不受本弹窗影响，登录后仍可在启动页选择正版；" &
                 "离线登录默认不可用，需要在设置里打开后才能使用。",
