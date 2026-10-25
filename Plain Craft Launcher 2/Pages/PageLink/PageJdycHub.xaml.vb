@@ -7,11 +7,11 @@ Imports Newtonsoft.Json.Linq
 
 ''' <summary>
 ''' 揭东一初联机大厅页（PCL 原生 UI：MyPageRight + MyCard + MyButton + MyListItem）。
-''' 顶栏“联机”按钮点进来就是这一页，不再是 PCL 自带的老联机页。
+''' 顶栏【联机】按钮点进来就是这一页，不再是 PCL 自带的老联机页。
 ''' 登录复用皮肤站登录态，大厅 JWT 经 /api/oauth/skin-token 换取；
 ''' 房间列表走 REST，加入房间走 WS（/lobby），联网走 jdyc-core.dll。
 ''' WS 连接在页面实例存活期间保持（房主断线后服务器会清扫房间），
-''' 只在“断开”或 PCL 退出时关闭；页面切换不影响 WS。
+''' 只在【断开】或 PCL 退出时关闭；页面切换不影响 WS。
 ''' </summary>
 Public Class PageJdycHub
 
@@ -58,7 +58,7 @@ Public Class PageJdycHub
         If JdycIsLoggedIn() Then
             LabStatus.Text = "皮肤站已登录：" & SkinName & "，大厅：" & HubState & "。"
         Else
-            LabStatus.Text = "皮肤站未登录，请先在启动页完成皮肤站登录，再点“连接大厅”。"
+            LabStatus.Text = "皮肤站未登录，请先在启动页完成皮肤站登录，再点【连接大厅】。"
         End If
         Dim Missing = HubMissingDeps()
         If Missing.Count > 0 Then
@@ -106,7 +106,7 @@ Public Class PageJdycHub
             RunInUi(Sub() BuildRoomList(List))
         Catch ex As Exception
             Logger.Warn(ex, "加载房间列表失败")
-            RunInUi(Sub() LabRoomsEmpty.Text = "房间列表加载失败，请点“刷新房间”重试。")
+            RunInUi(Sub() LabRoomsEmpty.Text = "房间列表加载失败，请点【刷新房间】重试。")
         End Try
     End Sub
 
@@ -114,7 +114,7 @@ Public Class PageJdycHub
         LastRooms = Rooms
         PanRooms.Children.Clear()
         LabRoomsEmpty.Visibility = If(Rooms.Count = 0, Visibility.Visible, Visibility.Collapsed)
-        If Rooms.Count = 0 Then LabRoomsEmpty.Text = "暂无房间，点击“刷新房间”试试。"
+        If Rooms.Count = 0 Then LabRoomsEmpty.Text = "暂无房间，点击【刷新房间】试试。"
         For Each R In Rooms
             Dim Item As New MyListItem With {
                 .Title = R("name").ToString(),
@@ -204,7 +204,7 @@ Public Class PageJdycHub
         End If
         Settings.Set("JdycHubBaseUrl", Url)
         Settings.Set("CacheJdycHubJwt", "")
-        Hint("已保存，点“连接大厅”重新连接。", HintType.Green)
+        Hint("已保存，点【连接大厅】重新连接。", HintType.Green)
     End Sub
 
     Private Sub BtnCreate_Click(sender As Object, e As RoutedEventArgs) Handles BtnCreate.Click
@@ -257,12 +257,12 @@ Public Class PageJdycHub
     Private Sub JoinSelectedRoom()
         Dim Jwt = HubJwt()
         If Jwt = "" Then
-            RunInUi(Sub() Hint("请先点“连接大厅”。", HintType.Red))
+            RunInUi(Sub() Hint("请先点【连接大厅】。", HintType.Red))
             Return
         End If
         WsConnect(Jwt)
         If Ws Is Nothing OrElse Ws.State <> WebSocketState.Open Then
-            RunInUi(Sub() Hint("大厅 WS 未连上，请点“连接大厅”重试。", HintType.Red))
+            RunInUi(Sub() Hint("大厅 WS 未连上，请点【连接大厅】重试。", HintType.Red))
             Return
         End If
         WsSend("{""type"":""join_room"",""room_id"":" & SelectedRoomId & "}")
@@ -570,7 +570,7 @@ Public Class PageJdycHub
 
     '-------------------- 外部入口与退出清理 --------------------
 
-    ''' <summary>切换到联机页（事件系统“加入房间”调用）。第一版暂不支持邀请码直连。</summary>
+    ''' <summary>切换到联机页（事件系统【加入房间】调用）。第一版暂不支持邀请码直连。</summary>
     Public Shared Sub Join()
         FrmMain.PageChange(FormMain.PageType.Link)
     End Sub
