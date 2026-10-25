@@ -1,0 +1,68 @@
+name: Release - Restore MC Download
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/release.yml'
+      - 'Plain Craft Launcher 2/Modules/ModSecret.vb'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: true
+
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v3
+        with:
+          msbuild-architecture: x64
+
+      - name: Update Help
+        run: |
+          Set-Location ..
+          git clone https://github.com/LTCatt/PCL2Help.git -b master --single-branch --depth 1
+          Set-Location PCL2Help
+          Remove-Item -Path *.* -Recurse -Force
+          Compress-Archive -Path .\* -DestinationPath .\Help.zip
+          Copy-Item -Path .\Help.zip -Destination "${{ github.workspace }}\Plain Craft Launcher 2\Resources\Help.zip" -Force
+          Set-Location ..
+          Remove-Item PCL2Help -Recurse -Force
+          Set-Location ${{ github.workspace }}
+
+      - name: Replace
+        run: |
+          (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "")', 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "${{ secrets.CLIENT_ID }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
+          (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "")', 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "${{ secrets.CURSEFORGE_API_KEY }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
+          (gc "Plain Craft Launcher 2\Modules\Base\ModBase.vb") -replace 'Public Const CommitHash As String = ""', 'Public Const CommitHash As String = "${{ github.sha }}"' | Out-File "Plain Craft Launcher 2\Modules\Base\ModBase.vb"
+
+      - name: Restore NuGet Packages
+        run: dotnet restore PCLCS\PCLCS.csproj
+
+      - name: Build
+        run: msbuild "Plain Craft Launcher 2\Plain Craft Launcher 2.vbproj" -p:Configuration=Release
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.99.0.1-download-restored
+          name: 2.99.0.1 恢复 MC 下载版
+          body: |
+            基于上游 Meloong-Git/PCL 2.99.0.1，已恢复 MC 下载功能。
+
+            改动（仅一处）：
+            - `Plain Craft Launcher 2/Modules/ModSecret.vb` 中 `RestrictMcDownload` 由 `True` 改为 `False`。上游 2.99.0.0 / 2.99.0.1 用该开关关闭的下载入口（下载新版本、整合包安装、版本修改中的 MC 本体、社区资源安装、下载页入口等）全部恢复；其余源码与上游 2.99.0.1 一致，内部版本号保持 2.99.0.1 不变。
+
+            本发布版由本仓库 GitHub Actions 编译。
+          files: |
+            Plain Craft Launcher 2\obj\Release\Plain Craft Launcher 2.exe
+          draft: false
+          prerelease: false
