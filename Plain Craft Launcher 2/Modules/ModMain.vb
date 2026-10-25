@@ -374,7 +374,7 @@ EndHint:
     Public FrmSpeedRight As PageSpeedRight
 
     '联机页面声明
-    Public FrmLinkMain As PageLinkMain
+    Public FrmJdycHub As PageJdycHub
 
     '下载页面声明
     Public FrmDownloadLeft As PageDownloadLeft

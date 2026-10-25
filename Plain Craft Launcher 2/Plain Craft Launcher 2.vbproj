@@ -258,6 +258,7 @@
     <Compile Include="Modules\Minecraft\ModWatcher.vb" />
     <Compile Include="Modules\ModSecret.vb" />
     <Compile Include="Modules\ModJdyc.vb" />
+    <Compile Include="Modules\ModJdycHub.vb" />
     <Compile Include="Pages\PageDownload\Resource\PageResource.xaml.vb">
       <DependentUpon>PageResource.xaml</DependentUpon>
     </Compile>
@@ -308,8 +309,8 @@
     <Compile Include="Pages\PageLaunch\PageLoginNideSkin.xaml.vb">
       <DependentUpon>PageLoginNideSkin.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\PageLink\PageLinkMain.xaml.vb">
-      <DependentUpon>PageLinkMain.xaml</DependentUpon>
+    <Compile Include="Pages\PageLink\PageJdycHub.xaml.vb">
+      <DependentUpon>PageJdycHub.xaml</DependentUpon>
     </Compile>
     <Compile Include="Pages\PageOther\PageOtherHelpDetail.xaml.vb">
       <DependentUpon>PageOtherHelpDetail.xaml</DependentUpon>
@@ -575,7 +576,7 @@
     <None Include="Resources\Custom.xaml">
       <SubType>Designer</SubType>
     </None>
-    <Page Include="Pages\PageLink\PageLinkMain.xaml">
+    <Page Include="Pages\PageLink\PageJdycHub.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

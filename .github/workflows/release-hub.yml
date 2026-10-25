@@ -1,0 +1,130 @@
+# 联机大厅版发布：把 PCL exe 与联网组件（jdyc-core.dll、frpc.exe、edge.exe、TAP 安装文件）
+# 打成一个 zip 发布，用户解压到同一目录后运行 exe 即可用大厅联网功能。
+# 不跟皮肤站版 release.yml 抢触发：只在手动触发，或推送 v2.99.0.1-jdyc-hub 标签时运行。
+# 流程：合 hub PR 进 main → 打标签 v2.99.0.1-jdyc-hub 并推送 → 本 workflow 编译并发布。
+name: Release - JDYC Hub
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v2.99.0.1-jdyc-hub']
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: true
+
+      - name: Update Help
+        run: |
+          Set-Location ..
+          git clone https://github.com/LTCatt/PCL2Help.git -b master --single-branch --depth 1
+          Set-Location PCL2Help
+          Remove-Item -Path *.* -Recurse -Force
+          Compress-Archive -Path .\* -DestinationPath .\Help.zip
+          Copy-Item -Path .\Help.zip -Destination "${{ github.workspace }}\Plain Craft Launcher 2\Resources\Help.zip" -Force
+          Set-Location ..
+          Remove-Item PCL2Help -Recurse -Force
+          Set-Location ${{ github.workspace }}
+
+      - name: Replace
+        run: |
+          (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "")', 'Public OAuthClientId As String = If(Environment.GetEnvironmentVariable("PCL_MS_CLIENT_ID"), "${{ secrets.CLIENT_ID }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
+          (gc "Plain Craft Launcher 2\Modules\ModSecret.vb") -replace 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "")', 'Public CurseForgeAPIKey As String = If(Environment.GetEnvironmentVariable("PCL_CURSEFORGE_API_KEY"), "${{ secrets.CURSEFORGE_API_KEY }}")' | Out-File "Plain Craft Launcher 2\Modules\ModSecret.vb"
+          (gc "Plain Craft Launcher 2\Modules\Base\ModBase.vb") -replace 'Public Const CommitHash As String = ""', 'Public Const CommitHash As String = "${{ github.sha }}"' | Out-File "Plain Craft Launcher 2\Modules\Base\ModBase.vb"
+
+      - name: Restore NuGet Packages
+        run: dotnet restore PCLCS\PCLCS.csproj
+
+      - name: Build
+        run: msbuild "Plain Craft Launcher 2\Plain Craft Launcher 2.vbproj" -p:Configuration=Release
+
+      - name: Checkout coop-hub (jdyc-core source)
+        uses: actions/checkout@v6
+        with:
+          repository: GoogleEdge/coop-hub
+          path: coop-hub
+          ref: main
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >-
+            git make autoconf automake libtool
+            mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-openssl mingw-w64-x86_64-pkg-config
+
+      - shell: msys2 {0}
+        name: 编译 jdyc-core.dll
+        run: |
+          cmake -S coop-hub/core -B coop-hub/core/build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake --build coop-hub/core/build -j
+
+      - shell: msys2 {0}
+        name: 编译 n2n edge.exe (v3.1.1)
+        run: |
+          ok=""
+          for tag in 3.1.1 3.1.0; do
+            rm -rf /c/n2n
+            git clone -q -b $tag https://github.com/ntop/n2n /c/n2n && cd /c/n2n
+            ./autogen.sh && ./configure CFLAGS="-std=gnu99 -Wno-error=implicit-function-declaration -Wno-error=implicit-int -Wno-error=int-conversion -Wno-error=incompatible-pointer-types -Wno-error=return-mismatch -Wno-error=enum-int-mismatch" && make -j && ok=$tag && break || true
+          done
+          [ -n "$ok" ] || { echo "::error::n2n 3.1.1/3.1.0 均编译失败"; exit 1; }
+          echo "n2n 使用 tag $ok 编译成功"
+
+      - name: 下载 frpc.exe 与 TAP 驱动安装包
+        shell: pwsh
+        run: |
+          $r = Invoke-RestMethod "https://api.github.com/repos/fatedier/frp/releases/latest"
+          $a = $r.assets | Where-Object {$_.name -match "windows_amd64.zip"} | Select-Object -First 1
+          Invoke-WebRequest $a.browser_download_url -OutFile frp.zip
+          Expand-Archive frp.zip -DestinationPath frp
+          New-Item -Force deps -ItemType Directory | Out-Null
+          Copy-Item (Get-ChildItem frp -Recurse -Filter frpc.exe | Select-Object -First 1).FullName deps/
+          Copy-Item coop-hub/core/build/jdyc-core.dll deps/
+          Copy-Item C:\n2n\edge.exe deps/
+          Invoke-WebRequest "https://github.com/OpenVPN/tap-windows6/releases/download/9.27.0/dist.win7.zip" -OutFile tap.zip
+          Expand-Archive tap.zip -DestinationPath tapdist
+          Copy-Item tapdist/dist.win7/amd64/tapinstall.exe deps/
+          Copy-Item tapdist/dist.win7/amd64/OemVista.inf deps/
+          Copy-Item tapdist/dist.win7/amd64/tap0901.cat deps/
+          Copy-Item tapdist/dist.win7/amd64/tap0901.sys deps/
+
+      - name: 打包完整包
+        shell: pwsh
+        run: |
+          New-Item -Force hub-dist -ItemType Directory | Out-Null
+          Copy-Item "Plain Craft Launcher 2\obj\Release\Plain Craft Launcher 2.exe" hub-dist/
+          Copy-Item deps\* hub-dist/ -Force
+          Compress-Archive -Path hub-dist\* -DestinationPath JDYC-PCL-Hub-v2.99.0.1.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.99.0.1-jdyc-hub
+          name: 2.99.0.1 联机大厅版
+          body: |
+            基于上游 Meloong-Git/PCL 2.99.0.1，含皮肤站版全部内容，并把顶栏“联机”换成揭东一初联机大厅。
+
+            改动：
+            - 顶栏“联机”按钮恢复显示，点进去是联机大厅（PCL 原生 UI），不再是 PCL 自带的老联机页。
+            - 登录复用皮肤站登录态：大厅 JWT 由服务端 /api/oauth/skin-token 用皮肤站 token 换取，不再二次弹浏览器登录，不再重复学生认证。
+            - 房间列表、创建房间、加入房间、复制地址、启动联网（frp 端口映射 / vlan 虚拟局域网）都在大厅页内完成；退出 PCL 时自动停止联网并断开大厅。
+            - 第一版不做一键启动游戏直连房间，启动还是走启动页；也不支持邀请码直连。
+
+            使用：下载 JDYC-PCL-Hub-v2.99.0.1.zip，解压到同一目录后运行里面的 exe（联网组件 jdyc-core.dll、frpc.exe、edge.exe、TAP 安装文件必须与 exe 在同一目录，缺失时大厅页会提示）。
+            大厅服务端默认 hub.jdyc.top，可在大厅页修改。
+          files: |
+            JDYC-PCL-Hub-v2.99.0.1.zip
+            jdyc-plugin/jdyc-pcl-bridge.zip
+          draft: false
+          prerelease: false
