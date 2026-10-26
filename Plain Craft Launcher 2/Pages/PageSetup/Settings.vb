@@ -71,7 +71,6 @@ Public Class Settings
         New Setting("CacheAuthServerServer", "", Source:=Sources.Registry, Encrypted:=True),
         New Setting("CacheAuthServerName", "", Source:=Sources.Registry, Encrypted:=True),
         New Setting("CacheAuthServerRegister", "", Source:=Sources.Registry, Encrypted:=True),
-        '揭东一初皮肤站与联机大厅：未注册的键在全新安装上会导致 Settings.Get 抛 KeyNotFoundException。
         New Setting("CacheJdycAccess", "", Source:=Sources.Registry, Encrypted:=True),
         New Setting("CacheJdycRefresh", "", Source:=Sources.Registry, Encrypted:=True),
         New Setting("CacheJdycExpires", 0L, Source:=Sources.Registry, Encrypted:=True),
