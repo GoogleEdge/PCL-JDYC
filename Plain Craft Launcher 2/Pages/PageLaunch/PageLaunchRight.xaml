@@ -16,8 +16,8 @@
                         <TextBlock Name="LabAccountEmail" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,4" />
                         <TextBlock Name="LabStudentStatus" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,10" />
                         <StackPanel Orientation="Horizontal">
-                            <local:MyButton x:Name="BtnRefreshAccount" Text="刷新账号" MinWidth="120" Padding="13,0" Margin="0,0,12,0" />
-                            <local:MyButton x:Name="BtnOpenSite" Text="打开皮肤站" MinWidth="120" Padding="13,0" Margin="0,0,12,0" />
+                            <local:MyButton x:Name="BtnRefreshAccount" Text="刷新账号" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
+                            <local:MyButton x:Name="BtnOpenSite" Text="打开皮肤站" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
                             <local:MyButton x:Name="BtnLogout" Text="退出皮肤站登录" MinWidth="140" Padding="13,0" ColorType="Red" />
                         </StackPanel>
                     </StackPanel>
@@ -26,27 +26,24 @@
             <local:MyCard Margin="0,15" Title="角色与皮肤">
                 <Grid Margin="25,40,25,17">
                     <StackPanel>
-                        <TextBlock Text="角色（下拉选择后，皮肤预览和换肤/披风都针对该角色）" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,6" />
-                        <local:MyComboBox x:Name="ComboPlayer" MinWidth="240" Margin="0,0,0,10" />
+                        <local:MyComboBox x:Name="ComboPlayer" MinWidth="240" Margin="0,0,0,10" ToolTip="下拉选择角色后，皮肤预览和换肤/披风都针对该角色。" />
                         <local:MySkin HorizontalAlignment="Left" x:Name="Skin" HasCape="False" Margin="0,0,0,10" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <local:MyButton x:Name="BtnChangeSkin" Text="换皮肤" MinWidth="120" Padding="13,0" Margin="0,0,12,0" />
-                            <local:MyButton x:Name="BtnChangeCape" Text="换披风" MinWidth="120" Padding="13,0" Margin="0,0,12,0" />
+                            <local:MyButton x:Name="BtnChangeSkin" Text="换皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
+                            <local:MyButton x:Name="BtnChangeCape" Text="换披风" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
                             <local:MyButton x:Name="BtnClearTexture" Text="清除皮肤/披风" MinWidth="140" Padding="13,0" ColorType="Red" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <local:MyButton x:Name="BtnUploadSkin" Text="上传皮肤" MinWidth="120" Padding="13,0" Margin="0,0,12,0" />
-                            <local:MyButton x:Name="BtnUploadCape" Text="上传披风" MinWidth="120" Padding="13,0" />
+                            <local:MyButton x:Name="BtnUploadSkin" Text="上传皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" ToolTip="选一张 PNG，皮肤宽高须为 64 的倍数 × 32 的倍数；上传后自动设为当前角色的皮肤，仅自己可见，不公开。" />
+                            <local:MyButton x:Name="BtnUploadCape" Text="上传披风" MinWidth="140" Padding="13,0" ToolTip="选一张 PNG，披风须为 2:1；上传后自动设为当前角色的披风，仅自己可见，不公开。" />
                         </StackPanel>
-                        <TextBlock Text="上传：选一张 PNG，皮肤宽高须为 64 的倍数 × 32 的倍数，披风须为 2:1；上传后自动设为当前角色的皮肤/披风，仅自己可见，不公开。" FontSize="11" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,10,0,0" TextWrapping="Wrap" />
                     </StackPanel>
                 </Grid>
             </local:MyCard>
             <local:MyCard Margin="0,15" Title="登录规则">
                 <Grid Margin="25,40,25,17">
                     <StackPanel>
-                        <local:MyCheckBox Height="28" Text="允许离线登录（默认关闭）" local:SettingService.Key="JdycAllowOffline" ToolTip="默认关闭：启动页不显示离线选项，正版和我校皮肤站登陆不受影响。打开后离线登录才可用。" />
-                        <TextBlock Text="皮肤站登录和正版登录不需要打开离线开关就能用；离线登录只在打开后才出现。" FontSize="11" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,6,0,0" TextWrapping="Wrap" />
+                        <local:MyCheckBox Height="28" Text="允许离线登录（默认关闭）" local:SettingService.Key="JdycAllowOffline" ToolTip="默认关闭：启动页不显示离线选项；皮肤站登录和正版登录不需要打开离线开关就能用，打开后离线登录才出现。" />
                     </StackPanel>
                 </Grid>
             </local:MyCard>

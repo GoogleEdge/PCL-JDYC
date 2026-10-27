@@ -27,7 +27,7 @@ Public Class PageLaunchRight
     Private Sub RefreshAccount()
         If Not JdycIsLoggedIn() Then
             LabAccountName.Text = "未登录皮肤站"
-            LabAccountEmail.Text = "启动器启动时会弹出皮肤站登录窗口，完成登录和学生认证后这里才会显示账号。"
+            LabAccountEmail.Text = ""
             LabStudentStatus.Text = ""
             BtnLogout.IsEnabled = False
             Return
