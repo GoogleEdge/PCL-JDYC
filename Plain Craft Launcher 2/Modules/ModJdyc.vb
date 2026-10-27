@@ -48,13 +48,36 @@ Public Module ModJdyc
     End Sub
 
     ''' <summary>
-    ''' 启动强制登录门：用 PCL 原生弹窗样式，只有两个按钮，没有关闭路径。
+    ''' 启动强制登录门：弹窗在 UI 线程弹（只有 UI 线程的弹窗才能真正挡住主窗体），
+    ''' 登录的网络请求在后台线程跑（PCL 禁止在 UI 线程执行网络请求，见 ModNet）。
     ''' “登陆”走 OAuth（浏览器授权，本地收 code）；“注册”只开注册页，
     ''' 弹窗随即重新弹出，直到登录并通过学生认证为止。关闭主窗口即退出程序。
-    ''' 在 FormMain 初始化线程里调用，放在 EULA 之前。
+    ''' 在 FormMain 初始化的 UI 线程里调用，放在 EULA 之前。
     ''' </summary>
     Public Sub JdycGate()
+        Dim LoginTask As Task(Of Boolean) = Nothing
         Do While Not JdycIsLoggedIn()
+            If LoginTask IsNot Nothing AndAlso LoginTask.IsCompleted Then
+                '后台登录已出结果：在 UI 线程收尾（成功进主界面，失败弹原因后重弹）。
+                'GetAwaiter().GetResult() 会原样抛出后台的异常，不包 AggregateException。
+                Try
+                    If LoginTask.GetAwaiter().GetResult() Then
+                        Settings.Set("LoginType", McLoginType.Jdyc)
+                        Return
+                    End If
+                Catch ex As Exception
+                    Logger.Warn(ex, "皮肤站登录失败")
+                    MyMsgBox("皮肤站登录失败：" & ex.Message & vbCrLf & vbCrLf & "请确认已在皮肤站完成注册和学生认证，然后重试。", "登录失败", "我知道了", IsWarn:=True)
+                End Try
+                LoginTask = Nothing
+                Continue Do
+            End If
+            If LoginTask IsNot Nothing Then
+                '登录进行中：只弹等待框挡住主窗体，不新开登录任务。
+                '浏览器里完成授权后，回到这里点我已完成授权，循环就会收后台任务的结果。
+                MyMsgBox("正在等待浏览器完成皮肤站登录…" & vbCrLf & vbCrLf & "请在浏览器里完成授权，然后回到启动器点我已完成授权。", "正在登录", "我已完成授权", ForceWait:=True)
+                Continue Do
+            End If
             Dim Result = MyMsgBox(
                 "欢迎使用揭东一初 PCL 启动器。" & vbCrLf & vbCrLf &
                 "使用本启动器需要先登录我校皮肤站（mcskin.jdyc.top），" &
@@ -69,20 +92,11 @@ Public Module ModJdyc
                 Continue Do
             End If
             '只有点“登陆”（Result = 1）才进 OAuth；其他返回值一律重弹，绝不能跳过登录门。
+            '登录全程在后台线程跑，UI 线程只弹弹窗：JdycLogin 本身要求非 UI 线程调用。
             If Result <> 1 Then
                 Continue Do
             End If
-            'Result = 1：走 OAuth。JdycLogin 内部会开浏览器并在本地收 code，
-            '失败时抛错（学生认证 pending / 被退回 / 未提交等），这里显示原因后重新弹。
-            Try
-                If JdycLogin() Then
-                    Settings.Set("LoginType", McLoginType.Jdyc)
-                    Return
-                End If
-            Catch ex As Exception
-                Logger.Warn(ex, "皮肤站登录失败")
-                MyMsgBox("皮肤站登录失败：" & ex.Message & vbCrLf & vbCrLf & "请确认已在皮肤站完成注册和学生认证，然后重试。", "登录失败", "我知道了", IsWarn:=True)
-            End Try
+            LoginTask = Task.Run(Function() JdycLogin())
         Loop
     End Sub
 
