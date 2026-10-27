@@ -418,16 +418,16 @@ Public Class FormMain
         'Timer 启动
         AniStart()
         TimerMainStart()
+        '揭东一初皮肤站强制登录门：必须在 UI 线程执行——在后台线程弹出的 PanMsg 弹窗无法真正阻塞主窗体，
+        '点“登陆”后弹窗消失而浏览器等待仍在后台跑，主窗体在这段时间完全能用，等于没拦住。
+        Try
+            JdycGate()
+        Catch ex As Exception
+            Logger.Error(ex, "皮肤站登录门运行失败")
+        End Try
         '加载池
         RunInNewThread(
         Sub()
-            '揭东一初皮肤站强制登录门：未登录且未通过学生认证时，
-            '用原生弹窗挡住，直到登录完成；注册按钮只开注册页，弹窗保持。
-            Try
-                JdycGate()
-            Catch ex As Exception
-                Logger.Error(ex, "皮肤站登录门运行失败")
-            End Try
             'EULA 提示
             Const EulaVersion As Integer = 2
             If Settings.Get(Of Integer)("SystemEulaVersion") < EulaVersion Then
@@ -1238,7 +1238,6 @@ Public Class FormMain
         SetupLink = 1
         SetupUI = 2
         SetupSystem = 3
-        SetupJdyc = 4
         LinkMain = 0
         OtherHelp = 0
         OtherAbout = 1

@@ -392,9 +392,6 @@
     <Compile Include="Pages\PageSetup\PageSetupUI.xaml.vb">
       <DependentUpon>PageSetupUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Pages\PageSetup\PageSetupJdyc.xaml.vb">
-      <DependentUpon>PageSetupJdyc.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Pages\PageSetup\SettingService.vb" />
     <Compile Include="Pages\PageSpeedLeft.xaml.vb">
       <DependentUpon>PageSpeedLeft.xaml</DependentUpon>
@@ -655,10 +652,6 @@
     <Page Include="Pages\PageSetup\PageSetupUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Pages\PageSetup\PageSetupJdyc.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\PageSpeedLeft.xaml">
       <SubType>Designer</SubType>

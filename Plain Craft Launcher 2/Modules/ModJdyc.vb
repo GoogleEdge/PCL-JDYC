@@ -68,6 +68,10 @@ Public Module ModJdyc
                 OpenWebsite(JdycSite & "/auth/register")
                 Continue Do
             End If
+            '只有点“登陆”（Result = 1）才进 OAuth；其他返回值一律重弹，绝不能跳过登录门。
+            If Result <> 1 Then
+                Continue Do
+            End If
             'Result = 1：走 OAuth。JdycLogin 内部会开浏览器并在本地收 code，
             '失败时抛错（学生认证 pending / 被退回 / 未提交等），这里显示原因后重新弹。
             Try
