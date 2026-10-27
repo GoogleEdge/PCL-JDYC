@@ -102,39 +102,39 @@ Public Class MySkin3D
     ''' </summary>
     Private Sub AddBox(Mesh As MeshGeometry3D, Pixels As Byte(), W As Integer, H As Integer, Scale As Integer,
                        x0 As Double, x1 As Double, y0 As Double, y1 As Double, z0 As Double, z1 As Double,
-                       ox As Integer, oy As Integer, w As Integer, d As Integer, h As Integer,
+                       ox As Integer, oy As Integer, bw As Integer, d As Integer, bh As Integer,
                        Optional oox As Integer = -1, Optional ooy As Integer = -1, Optional mirror As Boolean = False)
         '无叠加层时保持 -1 哨兵（直接加偏移会把 -1 变成非负，误判为有叠加层）
         Dim fox = If(oox < 0, -1, oox + d), foy = If(ooy < 0, -1, ooy + d)
-        Dim kix = If(oox < 0, -1, oox + d + w + d)
+        Dim kix = If(oox < 0, -1, oox + d + bw + d)
         Dim rix = oox, riy = foy
-        Dim lix = If(oox < 0, -1, oox + d + w)
+        Dim lix = If(oox < 0, -1, oox + d + bw)
         Dim tix = fox, tiy = ooy
         Dim bix = lix, biy = ooy
         '前（+Z）
         AddFace(Mesh, Pixels, W, H, Scale,
                 New Point3D(x0, y0, z1), New Point3D(x1, y0, z1), New Point3D(x1, y1, z1), New Point3D(x0, y1, z1), New Vector3D(0, 0, 1),
-                ox + d, oy + d, w, h, fox, foy, mirror)
+                ox + d, oy + d, bw, bh, fox, foy, mirror)
         '后（-Z）
         AddFace(Mesh, Pixels, W, H, Scale,
                 New Point3D(x1, y0, z0), New Point3D(x0, y0, z0), New Point3D(x0, y1, z0), New Point3D(x1, y1, z0), New Vector3D(0, 0, -1),
-                ox + d + w + d, oy + d, w, h, kix, foy, mirror)
+                ox + d + bw + d, oy + d, bw, bh, kix, foy, mirror)
         '右（-X，角色右侧）
         AddFace(Mesh, Pixels, W, H, Scale,
                 New Point3D(x0, y0, z0), New Point3D(x0, y0, z1), New Point3D(x0, y1, z1), New Point3D(x0, y1, z0), New Vector3D(-1, 0, 0),
-                ox, oy + d, d, h, rix, riy, mirror)
+                ox, oy + d, d, bh, rix, riy, mirror)
         '左（+X）
         AddFace(Mesh, Pixels, W, H, Scale,
                 New Point3D(x1, y0, z1), New Point3D(x1, y0, z0), New Point3D(x1, y1, z0), New Point3D(x1, y1, z1), New Vector3D(1, 0, 0),
-                ox + d + w, oy + d, d, h, lix, foy, mirror)
+                ox + d + bw, oy + d, d, bh, lix, foy, mirror)
         '顶（+Y）
         AddFace(Mesh, Pixels, W, H, Scale,
                 New Point3D(x0, y1, z1), New Point3D(x1, y1, z1), New Point3D(x1, y1, z0), New Point3D(x0, y1, z0), New Vector3D(0, 1, 0),
-                ox + d, oy, w, d, tix, tiy, mirror)
+                ox + d, oy, bw, d, tix, tiy, mirror)
         '底（-Y，上下翻转贴图，平时看不到）
         AddFace(Mesh, Pixels, W, H, Scale,
                 New Point3D(x1, y0, z1), New Point3D(x0, y0, z1), New Point3D(x0, y0, z0), New Point3D(x1, y0, z0), New Vector3D(0, -1, 0),
-                ox + d + w, oy, w, d, bix, biy, mirror, True)
+                ox + d + bw, oy, bw, d, bix, biy, mirror, True)
     End Sub
 
     ''' <summary>
