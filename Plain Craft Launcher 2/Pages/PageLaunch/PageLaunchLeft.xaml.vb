@@ -638,6 +638,11 @@ Finish:
         If McInstanceSelected IsNot Nothing Then
             Settings.Set("VersionServerAuthServer", JdycYggRoot, Instance:=McInstanceSelected)
         End If
+        '没选实例时 McSkinGetAddress 读全局缓存的 Auth 服务器；缓存为空就兜底为本站，
+        '否则空地址请求失败，预览回落 Steve。
+        If McInstanceSelected Is Nothing AndAlso Settings.Get(Of String)("CacheAuthServerServer") = "" Then
+            Settings.Set("CacheAuthServerServer", JdycYggRoot)
+        End If
         Try
             Dim Result As String = McSkinGetAddress(UUID, "Auth")
             If Data.IsCanceled Then Throw New OperationCanceledException("当前任务已取消：" & UserName)

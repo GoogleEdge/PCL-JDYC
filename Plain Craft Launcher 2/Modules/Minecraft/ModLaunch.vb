@@ -1360,6 +1360,14 @@ NextInstance:
         If McLoginLoader.Output.Type = "Auth" Then
             If McLaunchJavaSelected.Version.Major >= 6 Then Args.Add("-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT") '信任系统根证书（5252#）
             Dim Server As String = Settings.Get(Of String)("VersionServerAuthServer", Instance:=McInstanceSelected)
+            'JDYC 登录用户：如果本实例没写过 Auth 服务器（登录时没选实例、或之后换了实例），
+            '启动时直接兜底为皮肤站，避免空 URL 导致“无法连接到第三方登录服务器（）”。
+            If Server = "" AndAlso JdycIsLoggedIn() Then
+                Server = JdycYggRoot
+                If McInstanceSelected IsNot Nothing Then
+                    Settings.Set("VersionServerAuthServer", Server, Instance:=McInstanceSelected)
+                End If
+            End If
             Try
                 McLaunchLog($"开始 Authlib Injector Prefetch")
                 Dim Response As String = NetRequestByClientRetry(Server, Encoding:=Encoding.UTF8)
