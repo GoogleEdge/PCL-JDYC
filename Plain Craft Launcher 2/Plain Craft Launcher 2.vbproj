@@ -346,6 +346,9 @@
     <Compile Include="Pages\PageLaunch\MySkin.xaml.vb">
       <DependentUpon>MySkin.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\PageLaunch\MySkin3D.xaml.vb">
+      <DependentUpon>MySkin3D.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\PageLaunch\PageLoginNide.xaml.vb">
       <DependentUpon>PageLoginNide.xaml</DependentUpon>
     </Compile>
@@ -590,6 +593,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Pages\PageLaunch\MySkin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\PageLaunch\MySkin3D.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

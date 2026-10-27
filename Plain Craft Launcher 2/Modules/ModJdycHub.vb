@@ -210,7 +210,7 @@ Public Module ModJdycHub
             Case -10
                 Return "未安装 TAP 驱动"
             Case -11
-                Return "TAP 驱动安装失败，请以管理员身份运行 PCL 后重试"
+                Return "TAP 驱动安装失败：请确认已以管理员身份运行 PCL；仍失败时，可在 exe 目录以管理员身份手动运行 tapinstall.exe install OemVista.inf tap0901 后重试"
             Case -12
                 Return "需要管理员权限，请以管理员身份运行 PCL 后重试"
             Case Else

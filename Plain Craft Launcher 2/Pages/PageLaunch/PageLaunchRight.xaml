@@ -27,7 +27,7 @@
                 <Grid Margin="25,40,25,17">
                     <StackPanel>
                         <local:MyComboBox x:Name="ComboPlayer" MinWidth="240" Margin="0,0,0,10" ToolTip="下拉选择角色后，皮肤预览和换肤/披风都针对该角色。" />
-                        <local:MySkin HorizontalAlignment="Left" x:Name="Skin" HasCape="False" Margin="0,0,0,10" />
+                        <local:MySkin3D HorizontalAlignment="Left" x:Name="Skin3D" Margin="0,0,0,10" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <local:MyButton x:Name="BtnChangeSkin" Text="换皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
                             <local:MyButton x:Name="BtnChangeCape" Text="换披风" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />

@@ -8,6 +8,7 @@ Imports Newtonsoft.Json.Linq
 ''' <summary>
 ''' 揭东一初联机大厅页（PCL 原生 UI：MyPageRight + MyCard + MyButton + MyListItem）。
 ''' 顶栏【联机】按钮点进来就是这一页，不再是 PCL 自带的老联机页。
+''' 仅支持 Minecraft：不选游戏，端口默认 25565 可改，加入即自动联网。
 ''' 登录复用皮肤站登录态，大厅 JWT 经 /api/oauth/skin-token 换取；
 ''' 房间列表走 REST，加入房间走 WS（/lobby），联网走 jdyc-core.dll。
 ''' WS 连接在页面实例存活期间保持（房主断线后服务器会清扫房间），
@@ -37,7 +38,6 @@ Public Class PageJdycHub
     Public Sub New()
         InitializeComponent()
         TxtServer.Text = HubBaseUrl()
-        RadioGameMc.Checked = True
         RadioModeFrp.Checked = True
     End Sub
 
@@ -59,6 +59,12 @@ Public Class PageJdycHub
             LabStatus.Text = "皮肤站已登录：" & SkinName & "，大厅：" & HubState & "。"
         Else
             LabStatus.Text = "皮肤站未登录，请先在启动页完成皮肤站登录，再点【连接大厅】。"
+        End If
+        '房间名默认：皮肤站用户名 + 的房间（只在输入框为空时填，不覆盖用户自己改的名字）。
+        If JdycIsLoggedIn() AndAlso SkinName <> "" AndAlso String.IsNullOrWhiteSpace(TxtRoomName.Text) Then
+            Dim Base = SkinName
+            If Base.Length > 17 Then Base = Base.Substring(0, 17)
+            TxtRoomName.Text = Base & "的房间"
         End If
         Dim Missing = HubMissingDeps()
         If Missing.Count > 0 Then
@@ -160,8 +166,6 @@ Public Class PageJdycHub
                     Info &= "加入地址：" & R("frp_addr").ToString()
                 End If
                 LabNetInfo.Text = Info
-                BtnCloseRoom.Visibility = If(R("host_nickname").ToString() = HubNickname AndAlso HubNickname <> "",
-                    Visibility.Visible, Visibility.Collapsed)
                 Return
             End If
         Next
@@ -214,11 +218,9 @@ Public Class PageJdycHub
             Return
         End If
         Dim LocalPort As Integer = 0
-        If ModeCode = "frp" Then
-            If Not Integer.TryParse(TxtLocalPort.Text.Trim(), LocalPort) OrElse LocalPort < 1 OrElse LocalPort > 65535 Then
-                Hint("本地端口需为 1-65535。", HintType.Red)
-                Return
-            End If
+        If Not Integer.TryParse(TxtLocalPort.Text.Trim(), LocalPort) OrElse LocalPort < 1 OrElse LocalPort > 65535 Then
+            Hint("端口需为 1-65535。", HintType.Red)
+            Return
         End If
         LastCreateLocalPort = LocalPort
         Dim Body = "{""name"":""" & JsonEscape(Name) & """,""game"":""" & GameCode &
@@ -235,7 +237,6 @@ Public Class PageJdycHub
             SelectedRoom = Room
             RunInUi(Sub()
                         LabNetInfo.Text = "房间已创建，正在加入并启动联网……"
-                        BtnCloseRoom.Visibility = Visibility.Visible
                     End Sub)
             JoinSelectedRoom()
             RefreshRooms()
@@ -269,21 +270,7 @@ Public Class PageJdycHub
         RunInUi(Sub() LabNetInfo.Text = "已发送加入请求，等待服务器回应…")
     End Sub
 
-    Private Sub BtnStartNet_Click(sender As Object, e As RoutedEventArgs) Handles BtnStartNet.Click
-        If JoinedRoomId < 0 Then
-            Hint("先加入一个房间。", HintType.Red)
-            Return
-        End If
-        If JoinedMode = "vlan" Then
-            Dim T As New Thread(AddressOf StartVlanFromJoined) With {.IsBackground = True}
-            T.Start()
-        ElseIf JoinedMode = "frp" AndAlso JoinedIsHost Then
-            Dim T As New Thread(AddressOf StartFrpFromJoined) With {.IsBackground = True}
-            T.Start()
-        Else
-            Hint("端口映射模式的玩家不需要启动联网，直接复制地址进游戏即可。", HintType.Blue)
-        End If
-    End Sub
+
 
     Private Sub BtnCopyAddr_Click(sender As Object, e As RoutedEventArgs) Handles BtnCopyAddr.Click
         If String.IsNullOrWhiteSpace(JoinedGameAddr) Then
@@ -294,36 +281,43 @@ Public Class PageJdycHub
         Hint("已复制：" & JoinedGameAddr, HintType.Green)
     End Sub
 
-    Private Sub BtnStopNet_Click(sender As Object, e As RoutedEventArgs) Handles BtnStopNet.Click
-        HubNetStop()
-        NetRunning = False
-        LabNetInfo.Text = "联网已停止。"
-    End Sub
-
-    Private Sub BtnCloseRoom_Click(sender As Object, e As RoutedEventArgs) Handles BtnCloseRoom.Click
-        If SelectedRoomId < 0 Then Return
-        Dim Id = SelectedRoomId
-        Dim T As New Thread(Sub() CloseRoom(Id)) With {.IsBackground = True}
+    Private Sub BtnLeave_Click(sender As Object, e As RoutedEventArgs) Handles BtnLeave.Click
+        If JoinedRoomId < 0 Then
+            Hint("还没加入房间。", HintType.Red)
+            Return
+        End If
+        Dim Id = JoinedRoomId
+        Dim WasHost = JoinedIsHost
+        Dim T As New Thread(Sub() LeaveRoom(Id, WasHost)) With {.IsBackground = True}
         T.Start()
     End Sub
 
-    Private Sub CloseRoom(Id As Long)
+    ''' <summary>离开房间：先调服务端（房主删房，访客发 leave_room），成功后再停本地联网并清状态。后台线程调用。</summary>
+    Private Sub LeaveRoom(Id As Long, WasHost As Boolean)
         Try
-            HubApiDelete("/api/rooms/" & Id)
-            If JoinedRoomId = Id Then
-                HubNetStop()
-                NetRunning = False
-                JoinedRoomId = -1
+            If WasHost Then
+                HubApiDelete("/api/rooms/" & Id)
+            Else
+                WsSend("{""type"":""leave_room"",""room_id"":" & Id & "}")
             End If
-            RunInUi(Sub()
-                        Hint("房间已关闭。", HintType.Green)
-                        LabNetInfo.Text = "房间已关闭。"
-                    End Sub)
-            RefreshRooms()
         Catch ex As Exception
-            Logger.Warn(ex, "关闭房间失败")
-            RunInUi(Sub() Hint("关闭房间失败：" & ex.Message, HintType.Red))
+            Logger.Warn(ex, "离开房间失败")
+            RunInUi(Sub() Hint("离开房间失败：" & ex.Message, HintType.Red))
+            Return
         End Try
+        HubNetStop()
+        NetRunning = False
+        JoinedRoomId = -1
+        JoinedMode = ""
+        JoinedIsHost = False
+        JoinedFrp = Nothing
+        JoinedVlan = Nothing
+        JoinedGameAddr = ""
+        RunInUi(Sub()
+                    Hint(If(WasHost, "房间已关闭。", "已离开房间。"), HintType.Green)
+                    LabNetInfo.Text = If(WasHost, "房间已关闭。", "已离开房间。")
+                End Sub)
+        RefreshRooms()
     End Sub
 
     Private Function JsonEscape(Text As String) As String
@@ -443,7 +437,8 @@ Public Class PageJdycHub
                 GameAddr = Frp("frpc_server").ToString() & ":" & Frp("remote_port").ToString()
             End If
         ElseIf Vlan IsNot Nothing Then
-            GameAddr = Vlan("host_virt_ip").ToString() & ":" & HubDefaultGamePort(Msg("game").ToString())
+            '房主用创建时填的端口，访客用默认 25565（服务器目前不返回房间端口）。
+            GameAddr = Vlan("host_virt_ip").ToString() & ":" & If(IsHost, LastCreateLocalPort, 25565)
         End If
         RunInUi(Sub()
                     JoinedRoomId = RoomId
@@ -457,16 +452,17 @@ Public Class PageJdycHub
                         Info &= If(IsHost, "你是房主，正在启动转发，其他玩家连接：", "玩家连接地址：") & GameAddr
                     Else
                         Info &= "你的虚拟 IP：" & If(Vlan Is Nothing, "？", Vlan("my_virt_ip").ToString()) &
-                                "，游戏地址：" & GameAddr & "（端口为游戏默认端口）。"
+                                "，游戏地址：" & GameAddr & "。"
                     End If
                     LabNetInfo.Text = Info
                 End Sub)
-        '房主自动启动联网（后台线程做，UI 更新回主线程）
-        If IsHost AndAlso Mode = "frp" Then
-            Dim T As New Thread(AddressOf StartFrpFromJoined) With {.IsBackground = True}
-            T.Start()
-        ElseIf IsHost AndAlso Mode = "vlan" Then
+        '加入即自动启动联网（后台线程做，UI 更新回主线程）：
+        '虚拟局域网房主和访客都要起 edge；端口映射只有房主起 frpc，访客直接复制地址进游戏。
+        If Mode = "vlan" Then
             Dim T As New Thread(AddressOf StartVlanFromJoined) With {.IsBackground = True}
+            T.Start()
+        ElseIf IsHost AndAlso Mode = "frp" Then
+            Dim T As New Thread(AddressOf StartFrpFromJoined) With {.IsBackground = True}
             T.Start()
         End If
     End Sub
@@ -517,46 +513,6 @@ Public Class PageJdycHub
     End Sub
 
     '-------------------- 选择器 --------------------
-
-    Private Sub RadioGameMc_Check(sender As Object, e As RouteEventArgs) Handles RadioGameMc.Check
-        GameCode = "minecraft"
-        RadioGameTerraria.Checked = False
-        RadioGameCs.Checked = False
-        RadioGameYuzu.Checked = False
-        RadioGameCustom.Checked = False
-    End Sub
-
-    Private Sub RadioGameTerraria_Check(sender As Object, e As RouteEventArgs) Handles RadioGameTerraria.Check
-        GameCode = "terraria"
-        RadioGameMc.Checked = False
-        RadioGameCs.Checked = False
-        RadioGameYuzu.Checked = False
-        RadioGameCustom.Checked = False
-    End Sub
-
-    Private Sub RadioGameCs_Check(sender As Object, e As RouteEventArgs) Handles RadioGameCs.Check
-        GameCode = "cs16"
-        RadioGameMc.Checked = False
-        RadioGameTerraria.Checked = False
-        RadioGameYuzu.Checked = False
-        RadioGameCustom.Checked = False
-    End Sub
-
-    Private Sub RadioGameYuzu_Check(sender As Object, e As RouteEventArgs) Handles RadioGameYuzu.Check
-        GameCode = "yuzu"
-        RadioGameMc.Checked = False
-        RadioGameTerraria.Checked = False
-        RadioGameCs.Checked = False
-        RadioGameCustom.Checked = False
-    End Sub
-
-    Private Sub RadioGameCustom_Check(sender As Object, e As RouteEventArgs) Handles RadioGameCustom.Check
-        GameCode = "custom"
-        RadioGameMc.Checked = False
-        RadioGameTerraria.Checked = False
-        RadioGameYuzu.Checked = False
-        RadioGameCs.Checked = False
-    End Sub
 
     Private Sub RadioModeFrp_Check(sender As Object, e As RouteEventArgs) Handles RadioModeFrp.Check
         ModeCode = "frp"

@@ -11,13 +11,23 @@ Public Class PageLaunchRight
             (BuildType <> BuildTypes.Release AndAlso VersionBranchMain = "Official" AndAlso
              CurrentRank < DonationRank.Rank23 AndAlso Not Settings.Get(Of Boolean)("HintSnapshot")).ToVisibility
         '揭东一初皮肤站面板（原设置页皮肤站内容已移到启动页右侧）
-        Skin.Loader = PageLaunchLeft.SkinJdyc
+        Skin3D.Loader = PageLaunchLeft.SkinJdyc
+        '加载器完成时刷新 3D 预览（Loaded 可能多次触发，只绑一次）
+        If Not Skin3DHandlerAdded Then
+            Skin3DHandlerAdded = True
+            AddHandler PageLaunchLeft.SkinJdyc.OnStateChangedUi, AddressOf SkinLoaderStateChanged
+        End If
         Reset()
     End Sub
 
     '-------------------- 揭东一初皮肤站面板（由设置页移入） --------------------
 
     Private PlayersCache As JArray
+    Private Skin3DHandlerAdded As Boolean = False
+
+    Private Sub SkinLoaderStateChanged(Loader As LoaderBase, NewState As LoadState, OldState As LoadState)
+        If NewState = LoadState.Finished Then Skin3D.Load()
+    End Sub
 
     Public Sub Reset()
         RefreshAccount()
@@ -91,7 +101,11 @@ Public Class PageLaunchRight
         Sub()
             Try
                 Dim Session = JdycYggdrasilSession(P.Value(Of Integer)("pid"))
-                RunInUi(Sub() Skin.Loader.Start())
+                RunInUi(Sub()
+                            Skin3D.Loader.Start()
+                            '加载器已完成时不会再触发状态变化，直接画
+                            If Skin3D.Loader.State = LoadState.Finished Then Skin3D.Load()
+                        End Sub)
             Catch ex As Exception
                 Logger.Warn(ex, "加载皮肤站皮肤预览失败")
             End Try

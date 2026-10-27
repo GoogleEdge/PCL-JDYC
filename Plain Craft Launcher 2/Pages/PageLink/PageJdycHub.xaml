@@ -11,9 +11,9 @@
                     <TextBlock x:Name="LabStatus" Text="正在连接大厅……" FontSize="14" TextWrapping="Wrap" />
                     <local:MyHint x:Name="HintDeps" Margin="0,12,0,0" Text="" Theme="Yellow" Visibility="Collapsed" />
                     <WrapPanel Margin="0,12,0,0">
-                        <local:MyButton x:Name="BtnConnect" Text="连接大厅" MinWidth="120" Padding="13,0" Margin="0,0,12,0" />
-                        <local:MyButton x:Name="BtnRefresh" Text="刷新房间" MinWidth="120" Padding="13,0" Margin="0,0,12,0" />
-                        <local:MyButton x:Name="BtnDisconnect" Text="断开" MinWidth="100" Padding="13,0" Margin="0,0,12,0" ColorType="Red" />
+                        <local:MyButton x:Name="BtnConnect" Text="连接大厅" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                        <local:MyButton x:Name="BtnRefresh" Text="刷新房间" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                        <local:MyButton x:Name="BtnDisconnect" Text="断开" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" ColorType="Red" />
                     </WrapPanel>
                     <Grid Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
@@ -23,7 +23,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="服务器地址" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0" />
                         <local:MyTextBox x:Name="TxtServer" Grid.Column="1" MaxLength="200" />
-                        <local:MyButton x:Name="BtnSaveServer" Text="保存" Grid.Column="2" MinWidth="80" Padding="13,0" Margin="12,0,0,0" />
+                        <local:MyButton x:Name="BtnSaveServer" Text="保存" Grid.Column="2" MinWidth="80" Padding="13,0" Margin="12,0,0,0" Height="35" />
                     </Grid>
                 </StackPanel>
             </local:MyCard>
@@ -37,14 +37,6 @@
                         <TextBlock Text="房间名" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0" />
                         <local:MyTextBox x:Name="TxtRoomName" Grid.Column="1" MaxLength="20" />
                     </Grid>
-                    <TextBlock Text="游戏" FontSize="14" Margin="0,0,0,6" />
-                    <WrapPanel Margin="0,0,0,10">
-                        <local:MyRadioBox x:Name="RadioGameMc" Text="Minecraft" Margin="0,0,18,0" />
-                        <local:MyRadioBox x:Name="RadioGameTerraria" Text="泰拉瑞亚" Margin="0,0,18,0" />
-                        <local:MyRadioBox x:Name="RadioGameCs" Text="CS1.6" Margin="0,0,18,0" />
-                        <local:MyRadioBox x:Name="RadioGameYuzu" Text="Yuzu" Margin="0,0,18,0" />
-                        <local:MyRadioBox x:Name="RadioGameCustom" Text="其他" Margin="0,0,18,0" />
-                    </WrapPanel>
                     <TextBlock Text="模式" FontSize="14" Margin="0,0,0,6" />
                     <WrapPanel Margin="0,0,0,10">
                         <local:MyRadioBox x:Name="RadioModeFrp" Text="端口映射（frp，适合开服）" Margin="0,0,18,0" />
@@ -55,10 +47,10 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="1*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="本地端口（仅 frp 模式）" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0" />
+                        <TextBlock Text="端口" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0" />
                         <local:MyTextBox x:Name="TxtLocalPort" Grid.Column="1" MaxLength="5" Text="25565" />
                     </Grid>
-                    <local:MyButton x:Name="BtnCreate" Text="创建房间" MinWidth="140" Padding="13,0" ColorType="Highlight" HorizontalAlignment="Left" />
+                    <local:MyButton x:Name="BtnCreate" Text="创建房间" MinWidth="140" Padding="13,0" Height="35" ColorType="Highlight" HorizontalAlignment="Left" />
                 </StackPanel>
             </local:MyCard>
             <local:MyCard Margin="0,0,0,15" Title="房间列表" x:Name="CardRooms">
@@ -71,11 +63,9 @@
                 <StackPanel Margin="25,40,25,20">
                     <TextBlock x:Name="LabNetInfo" Text="在房间列表里点一个房间，再点“加入房间”。" FontSize="14" TextWrapping="Wrap" />
                     <WrapPanel Margin="0,12,0,0">
-                        <local:MyButton x:Name="BtnJoin" Text="加入房间" MinWidth="120" Padding="13,0" Margin="0,0,12,10" />
-                        <local:MyButton x:Name="BtnStartNet" Text="启动联网" MinWidth="120" Padding="13,0" Margin="0,0,12,10" ColorType="Highlight" />
-                        <local:MyButton x:Name="BtnCopyAddr" Text="复制地址" MinWidth="120" Padding="13,0" Margin="0,0,12,10" />
-                        <local:MyButton x:Name="BtnStopNet" Text="停止联网" MinWidth="120" Padding="13,0" Margin="0,0,12,10" ColorType="Red" />
-                        <local:MyButton x:Name="BtnCloseRoom" Text="关闭房间" MinWidth="120" Padding="13,0" Margin="0,0,12,10" ColorType="Red" />
+                        <local:MyButton x:Name="BtnJoin" Text="加入房间" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" />
+                        <local:MyButton x:Name="BtnCopyAddr" Text="复制地址" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" />
+                        <local:MyButton x:Name="BtnLeave" Text="离开房间" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" ColorType="Red" />
                     </WrapPanel>
                 </StackPanel>
             </local:MyCard>

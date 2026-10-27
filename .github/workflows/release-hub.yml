@@ -97,12 +97,15 @@ jobs:
           Copy-Item (Get-ChildItem frp -Recurse -Filter frpc.exe | Select-Object -First 1).FullName deps/
           Copy-Item coop-hub/core/build/jdyc-core.dll deps/
           Copy-Item C:\n2n\edge.exe deps/
-          Invoke-WebRequest "https://github.com/OpenVPN/tap-windows6/releases/download/9.27.0/dist.win7.zip" -OutFile tap.zip
+          # 注意：必须用 dist.win10（Win10/11 驱动包），之前用的 dist.win7 在 Win10/11 上装不上，
+          # 即使用管理员运行也会报 TAP 安装失败。win10 包里的工具改名叫 devcon.exe，功能与 tapinstall 相同，
+          # 这里改名拷回 tapinstall.exe，这样 PCL 的依赖检查与 tap.c 的安装命令不用改。
+          Invoke-WebRequest "https://github.com/OpenVPN/tap-windows6/releases/download/9.27.0/dist.win10.zip" -OutFile tap.zip
           Expand-Archive tap.zip -DestinationPath tapdist
-          Copy-Item tapdist/dist.win7/amd64/tapinstall.exe deps/
-          Copy-Item tapdist/dist.win7/amd64/OemVista.inf deps/
-          Copy-Item tapdist/dist.win7/amd64/tap0901.cat deps/
-          Copy-Item tapdist/dist.win7/amd64/tap0901.sys deps/
+          Copy-Item tapdist/dist.win10/amd64/devcon.exe deps/tapinstall.exe
+          Copy-Item tapdist/dist.win10/amd64/OemVista.inf deps/
+          Copy-Item tapdist/dist.win10/amd64/tap0901.cat deps/
+          Copy-Item tapdist/dist.win10/amd64/tap0901.sys deps/
 
       - name: 打包完整包
         shell: pwsh
