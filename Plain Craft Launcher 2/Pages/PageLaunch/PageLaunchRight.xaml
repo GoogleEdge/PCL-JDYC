@@ -16,9 +16,9 @@
                         <TextBlock Name="LabAccountEmail" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,4" />
                         <TextBlock Name="LabStudentStatus" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,10" />
                         <StackPanel Orientation="Horizontal">
-                            <local:MyButton x:Name="BtnRefreshAccount" Text="刷新账号" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
-                            <local:MyButton x:Name="BtnOpenSite" Text="打开皮肤站" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
-                            <local:MyButton x:Name="BtnLogout" Text="退出皮肤站登录" MinWidth="140" Padding="13,0" ColorType="Red" />
+                            <local:MyButton x:Name="BtnRefreshAccount" Text="刷新账号" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                            <local:MyButton x:Name="BtnOpenSite" Text="打开皮肤站" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                            <local:MyButton x:Name="BtnLogout" Text="退出皮肤站登录" MinWidth="140" Padding="13,0" ColorType="Red" Height="35" />
                         </StackPanel>
                     </StackPanel>
                 </Grid>
@@ -29,13 +29,13 @@
                         <local:MyComboBox x:Name="ComboPlayer" MinWidth="240" Margin="0,0,0,10" ToolTip="下拉选择角色后，皮肤预览和换肤/披风都针对该角色。" />
                         <local:MySkin HorizontalAlignment="Left" x:Name="Skin" HasCape="False" Margin="0,0,0,10" />
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <local:MyButton x:Name="BtnChangeSkin" Text="换皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
-                            <local:MyButton x:Name="BtnChangeCape" Text="换披风" MinWidth="140" Padding="13,0" Margin="0,0,20,0" />
-                            <local:MyButton x:Name="BtnClearTexture" Text="清除皮肤/披风" MinWidth="140" Padding="13,0" ColorType="Red" />
+                            <local:MyButton x:Name="BtnChangeSkin" Text="换皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                            <local:MyButton x:Name="BtnChangeCape" Text="换披风" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                            <local:MyButton x:Name="BtnClearTexture" Text="清除皮肤/披风" MinWidth="140" Padding="13,0" ColorType="Red" Height="35" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <local:MyButton x:Name="BtnUploadSkin" Text="上传皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" ToolTip="选一张 PNG，皮肤宽高须为 64 的倍数 × 32 的倍数；上传后自动设为当前角色的皮肤，仅自己可见，不公开。" />
-                            <local:MyButton x:Name="BtnUploadCape" Text="上传披风" MinWidth="140" Padding="13,0" ToolTip="选一张 PNG，披风须为 2:1；上传后自动设为当前角色的披风，仅自己可见，不公开。" />
+                            <local:MyButton x:Name="BtnUploadSkin" Text="上传皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" ToolTip="选一张 PNG，皮肤宽高须为 64 的倍数 × 32 的倍数；上传后自动设为当前角色的皮肤，仅自己可见，不公开。" />
+                            <local:MyButton x:Name="BtnUploadCape" Text="上传披风" MinWidth="140" Padding="13,0" Height="35" ToolTip="选一张 PNG，披风须为 2:1；上传后自动设为当前角色的披风，仅自己可见，不公开。" />
                         </StackPanel>
                     </StackPanel>
                 </Grid>
