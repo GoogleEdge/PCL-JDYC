@@ -42,7 +42,7 @@ Public Class MySkin3D
                 Clear()
                 Throw New Exception("皮肤高度不是 32 或 64 的倍数：" & H)
             End If
-            BuildModel(Image.Pic, W, H, Scale, GH)
+            BuildModel(Image, W, H, Scale, GH)
             Logger.Info($"载入 3D 皮肤成功：{Loader.Name}")
         Catch ex As Exception
             Logger.Error(ex, $"载入 3D 皮肤失败（{If(SkinAddress, "null")},{Loader.Name}）", LogBehavior.Toast)
@@ -58,12 +58,13 @@ Public Class MySkin3D
 
     '-------------------- 模型生成 --------------------
 
-    Private Sub BuildModel(Pic As BitmapSource, W As Integer, H As Integer, Scale As Integer, GH As Integer)
-        '取 Bgra32 像素，供叠加层透明判断
-        Dim Formatted As New FormatConvertedBitmap(Pic, PixelFormats.Bgra32, Nothing, 0)
+    Private Sub BuildModel(SkinImage As MyBitmap, W As Integer, H As Integer, Scale As Integer, GH As Integer)
+        'MyBitmap.Pic 是 GDI 位图，用 PCL 自带的 MyBitmap→ImageSource 转换拿到 Bgra32 位图（运行时即 BitmapSource）：
+        '像素供叠加层透明判断，位图本身做贴图
+        Dim BmpSource As BitmapSource = CType(CType(SkinImage, ImageSource), BitmapSource)
         Dim Stride = W * 4
         Dim Pixels(Stride * H - 1) As Byte
-        Formatted.CopyPixels(Pixels, Stride, 0)
+        BmpSource.CopyPixels(Pixels, Stride, 0)
         Dim Mesh As New MeshGeometry3D()
         Dim Is64 = (GH = 64)
         '头（帽子叠加层两种布局都有）
@@ -89,7 +90,7 @@ Public Class MySkin3D
         Else
             AddBox(Mesh, Pixels, W, H, Scale, 4, 8, 12, 24, -2, 2, 40, 16, 4, 4, 12, -1, -1, True)
         End If
-        Dim Brush As New ImageBrush(Pic)
+        Dim Brush As New ImageBrush(BmpSource)
         RenderOptions.SetBitmapScalingMode(Brush, BitmapScalingMode.NearestNeighbor)
         Dim Mat As New DiffuseMaterial(Brush)
         ModelView.Content = New GeometryModel3D(Mesh, Mat) With {.BackMaterial = Mat}
