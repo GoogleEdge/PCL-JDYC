@@ -292,6 +292,53 @@ Public Class PageJdycHub
         T.Start()
     End Sub
 
+    Private Sub BtnTestNet_Click(sender As Object, e As RoutedEventArgs) Handles BtnTestNet.Click
+        If JoinedRoomId < 0 OrElse String.IsNullOrWhiteSpace(JoinedGameAddr) Then
+            Hint("还没有可测试的地址，先加入房间。", HintType.Red)
+            Return
+        End If
+        If JoinedMode <> "frp" Then
+            Hint("外网联通性测试仅支持端口映射（frp）房间。", HintType.Red)
+            Return
+        End If
+        Dim Addr = JoinedGameAddr
+        LabTestResult.Text = "正在向 " & Addr & " 发送 MC 检测包……"
+        Dim T As New Thread(Sub() TestNet(Addr)) With {.IsBackground = True}
+        T.Start()
+    End Sub
+
+    ''' <summary>外网联通性测试：向房间 frp 地址发 MC 状态检测包。后台线程调用。</summary>
+    Private Sub TestNet(Addr As String)
+        Dim Host As String = Addr
+        Dim Port As Integer = 25565
+        Dim Sep = Addr.LastIndexOf(":"c)
+        If Sep > 0 Then
+            Host = Addr.Substring(0, Sep)
+            Integer.TryParse(Addr.Substring(Sep + 1), Port)
+        End If
+        If Port < 1 OrElse Port > 65535 Then
+            RunInUi(Sub() LabTestResult.Text = "检测失败：地址端口无效：" & Addr)
+            Return
+        End If
+        Dim Res As McPingResult
+        Try
+            Res = McPingServer(Host, Port, 5000)
+        Catch ex As Exception
+            Logger.Warn(ex, "MC 检测异常")
+            RunInUi(Sub() LabTestResult.Text = "检测失败：" & ex.Message)
+            Return
+        End Try
+        RunInUi(Sub()
+                    If Res.Success Then
+                        Dim Extra As String = ""
+                        If Res.VersionName <> "" Then Extra = "（" & Res.VersionName & "，" & Res.PlayersOnline & "/" & Res.PlayersMax & " 人在线）"
+                        LabTestResult.Text = "检测通过（" & Addr & "），延迟：" & Res.LatencyMs & " 毫秒" & Extra
+                    Else
+                        LabTestResult.Text = "检测失败（" & Addr & "）：" & Res.ErrorMessage & "。请确认游戏服务器已开服且房主转发已启动。"
+                    End If
+                End Sub)
+    End Sub
+
     ''' <summary>离开房间：先调服务端（房主删房，访客发 leave_room），成功后再停本地联网并清状态。后台线程调用。</summary>
     Private Sub LeaveRoom(Id As Long, WasHost As Boolean)
         Try
@@ -316,6 +363,7 @@ Public Class PageJdycHub
         RunInUi(Sub()
                     Hint(If(WasHost, "房间已关闭。", "已离开房间。"), HintType.Green)
                     LabNetInfo.Text = If(WasHost, "房间已关闭。", "已离开房间。")
+                    LabTestResult.Text = ""
                 End Sub)
         RefreshRooms()
     End Sub
