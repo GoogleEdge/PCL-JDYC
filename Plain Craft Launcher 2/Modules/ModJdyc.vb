@@ -63,6 +63,15 @@ Public Module ModJdyc
                 Try
                     If LoginTask.GetAwaiter().GetResult() Then
                         Settings.Set("LoginType", McLoginType.Jdyc)
+                        '登录门刚完成：刷新启动页显示。登录门完成前跑过的刷新可能用了未登录状态
+                        '（例如切到正版页并粘住了正版单选框），这里统一刷回皮肤站显示。
+                        '刷新本身失败也不能误报成登录失败，单独吞掉只记日志。
+                        Try
+                            FrmLaunchLeft.RefreshPage(True, False)
+                            FrmLaunchRight.ForceRefresh()
+                        Catch ex As Exception
+                            Logger.Warn(ex, "登录门完成后刷新启动页失败")
+                        End Try
                         Return
                     End If
                 Catch ex As Exception

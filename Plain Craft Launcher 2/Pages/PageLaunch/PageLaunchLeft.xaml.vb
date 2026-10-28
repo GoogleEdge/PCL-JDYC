@@ -308,6 +308,11 @@ Public Class PageLaunchLeft
         Select Case LoginPageType
             Case 0 '正版、皮肤站或离线
 UnknownType:
+                '登录门已完成但单选框仍粘在正版时（登录门完成前跑过的刷新会留下这种不一致），
+                '以实际登录态为准刷回皮肤站；用户本会话内主动点正版时 LoginType 已是 Ms，不受影响。
+                If JdycIsLoggedIn() AndAlso Settings.Get(Of McLoginType)("LoginType") = McLoginType.Jdyc AndAlso Not RadioLoginType6.Checked Then
+                    RadioLoginType6.Checked = True
+                End If
                 If RadioLoginType5.Checked Then
                     If Settings.Get(Of String)("CacheMsV2Access") = "" Then
                         Type = PageType.Ms
@@ -388,7 +393,13 @@ UnknownType:
                 GoTo UnknownType
         End Select
         '刷新页面
-        If PageCurrent = Type Then Return
+        If PageCurrent = Type Then
+            '已经是该登录页时也要重读缓存刷新显示，否则切页回来后仍是旧的账号信息。
+            PageGet(Type).Reload(KeepInput)
+            Dim ControlSame As MyRadioButton = FindName("RadioLoginType" & Settings.Get(Of McLoginType)("LoginType"))
+            If ControlSame IsNot Nothing Then ControlSame.Checked = True
+            Return
+        End If
         PageChange(Type, Anim).Reload(KeepInput)
         Dim Control As MyRadioButton = FindName("RadioLoginType" & Settings.Get(Of McLoginType)("LoginType"))
         If Control IsNot Nothing Then Control.Checked = True
