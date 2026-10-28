@@ -7,47 +7,61 @@
     xmlns:local="clr-namespace:PCL" PanScroll="PanBack">
     <local:MyScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanBack">
         <StackPanel Name="PanMain" Margin="25,25,25,10" Grid.IsSharedSizeScope="True">
-            <local:MyHint x:Name="PanHint" RelativeSetup="HintSnapshot" Theme="Blue" CanClose="True" Margin="0,0,0,15"
+            <local:MyHint x:Name="PanHint" RelativeSetup="HintSnapshot" Theme="Blue" CanClose="True" Margin="0,0,0,12"
                           Text="快照版 PCL 包含尚未正式发布的测试功能，仅限赞助者自己使用。&#xa;请不要随意发给其他人，或是用来制作整合包哦！" />
-            <local:MyCard Margin="0,15" Title="皮肤站账号">
+            <local:MyCard Margin="0,8" Title="皮肤站账号">
                 <Grid Margin="25,40,25,17">
                     <StackPanel>
-                        <TextBlock Name="LabAccountName" Text="未登录皮肤站" FontSize="16" Margin="0,0,0,4" />
-                        <TextBlock Name="LabAccountEmail" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,4" />
-                        <TextBlock Name="LabStudentStatus" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,10" />
+                        <TextBlock Name="LabAccountName" Text="未登录皮肤站" FontSize="16" Margin="0,0,0,6" />
+                        <TextBlock Name="LabAccountEmail" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,6" />
+                        <TextBlock Name="LabStudentStatus" Text="" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" Margin="0,0,0,8" />
                         <StackPanel Orientation="Horizontal">
-                            <local:MyButton x:Name="BtnRefreshAccount" Text="刷新账号" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
-                            <local:MyButton x:Name="BtnOpenSite" Text="打开皮肤站" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                            <local:MyButton x:Name="BtnRefreshAccount" Text="刷新账号" MinWidth="140" Padding="13,0" Margin="0,0,12,0" Height="35" />
+                            <local:MyButton x:Name="BtnOpenSite" Text="打开皮肤站" MinWidth="140" Padding="13,0" Margin="0,0,12,0" Height="35" />
                             <local:MyButton x:Name="BtnLogout" Text="退出皮肤站登录" MinWidth="140" Padding="13,0" ColorType="Red" Height="35" />
                         </StackPanel>
                     </StackPanel>
                 </Grid>
             </local:MyCard>
-            <local:MyCard Margin="0,15" Title="角色与皮肤">
+            <local:MyCard Margin="0,8" Title="角色与皮肤">
                 <Grid Margin="25,40,25,17">
-                    <StackPanel>
-                        <local:MyComboBox x:Name="ComboPlayer" MinWidth="240" Margin="0,0,0,10" ToolTip="下拉选择角色后，皮肤预览和换肤/披风都针对该角色。" />
-                        <local:MySkin3D HorizontalAlignment="Left" x:Name="Skin3D" Margin="0,0,0,10" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <local:MyComboBox x:Name="ComboPlayer" MinWidth="240" Margin="0,0,0,8" ToolTip="下拉选择角色后，皮肤预览和换肤/披风都针对该角色。" />
+                            <TextBlock Text="拖动预览可以旋转查看。" FontSize="12" Foreground="{DynamicResource ColorBrushGray3}" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <local:MySkin3D Grid.Column="2" HorizontalAlignment="Right" x:Name="Skin3D" />
+                    </Grid>
+                    <StackPanel Grid.Row="1">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <local:MyButton x:Name="BtnChangeSkin" Text="换皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
-                            <local:MyButton x:Name="BtnChangeCape" Text="换披风" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                            <local:MyButton x:Name="BtnChangeSkin" Text="换皮肤" MinWidth="140" Padding="13,0" Margin="0,0,12,0" Height="35" />
+                            <local:MyButton x:Name="BtnChangeCape" Text="换披风" MinWidth="140" Padding="13,0" Margin="0,0,12,0" Height="35" />
                             <local:MyButton x:Name="BtnClearTexture" Text="清除皮肤/披风" MinWidth="140" Padding="13,0" ColorType="Red" Height="35" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <local:MyButton x:Name="BtnUploadSkin" Text="上传皮肤" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" ToolTip="选一张 PNG，皮肤宽高须为 64 的倍数 × 32 的倍数；上传后自动设为当前角色的皮肤，仅自己可见，不公开。" />
+                            <local:MyButton x:Name="BtnUploadSkin" Text="上传皮肤" MinWidth="140" Padding="13,0" Margin="0,0,12,0" Height="35" ToolTip="选一张 PNG，皮肤宽高须为 64 的倍数 × 32 的倍数；上传后自动设为当前角色的皮肤，仅自己可见，不公开。" />
                             <local:MyButton x:Name="BtnUploadCape" Text="上传披风" MinWidth="140" Padding="13,0" Height="35" ToolTip="选一张 PNG，披风须为 2:1；上传后自动设为当前角色的披风，仅自己可见，不公开。" />
                         </StackPanel>
                     </StackPanel>
                 </Grid>
             </local:MyCard>
-            <local:MyCard Margin="0,15" Title="登录规则">
+            <local:MyCard Margin="0,8" Title="登录规则">
                 <Grid Margin="25,40,25,17">
                     <StackPanel>
                         <local:MyCheckBox Height="28" Text="允许离线登录（默认关闭）" local:SettingService.Key="JdycAllowOffline" ToolTip="默认关闭：启动页不显示离线选项；皮肤站登录和正版登录不需要打开离线开关就能用，打开后离线登录才出现。" />
                     </StackPanel>
                 </Grid>
             </local:MyCard>
-            <local:MyCard Margin="0,0,0,15" Title="启动日志" x:Name="PanLog">
+            <local:MyCard Margin="0,0,0,8" Title="启动日志" x:Name="PanLog">
                 <local:MyTextBox x:Name="LabLog" Margin="15,34,15,13" Padding="0,4" IsReadOnly="True" IsUndoEnabled="False"
                          AcceptsReturn="True" TextWrapping="Wrap" BorderThickness="0" HasBackground="False"
                          VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled" />
