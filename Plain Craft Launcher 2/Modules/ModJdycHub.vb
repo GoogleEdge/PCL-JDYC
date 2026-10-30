@@ -225,7 +225,10 @@ Public Module ModJdycHub
         Dim FrpcExe = Path.Combine(HubAppDir(), "frpc.exe")
         If Not File.Exists(FrpcExe) Then Return -3
         Dim Toml As New StringBuilder()
-        Toml.AppendLine("serverAddr = """ & FrpcServer & ":" & FrpcPort & """")
+        'frpc 的 TOML 里地址和端口必须是两个字段；写成 serverAddr = "host:port" 时
+        'frpc 拼出来的拨号地址带两个端口，连不上 frps（frps 日志里也因此一次登录尝试都没有）。
+        Toml.AppendLine("serverAddr = """ & FrpcServer & """")
+        Toml.AppendLine("serverPort = " & FrpcPort)
         If Not String.IsNullOrWhiteSpace(FrpcToken) Then Toml.AppendLine("auth.token = """ & FrpcToken & """")
         Toml.AppendLine("[[proxies]]")
         Toml.AppendLine("name = """ & ProxyName & """")
