@@ -46,8 +46,8 @@ Public Module ModJdyc
     ''' <summary>
     ''' 启动强制登录门：弹窗在 UI 线程弹（只有 UI 线程的弹窗才能真正挡住主窗体），
     ''' 登录的网络请求在后台线程跑（PCL 禁止在 UI 线程执行网络请求，见 ModNet）。
-    ''' “登陆”走 OAuth（浏览器授权，本地收 code）；“注册”只开注册页，
-    ''' 弹窗随即重新弹出，直到登录并通过学生认证为止。关闭主窗口即退出程序。
+    ''' 没有额外的欢迎提示：未登录时直接开浏览器走 OAuth（本地收 code）；
+    ''' 登录进行中弹等待框，失败弹原因后重试，直到登录并通过学生认证为止。关闭主窗口即退出程序。
     ''' 在 FormMain 初始化的 UI 线程里调用，放在 EULA 之前。
     ''' </summary>
     Public Sub JdycGate()
@@ -60,7 +60,7 @@ Public Module ModJdyc
                     If LoginTask.GetAwaiter().GetResult() Then
                         Settings.Set("LoginType", McLoginType.Jdyc)
                         '登录门刚完成：刷新启动页显示。登录门完成前跑过的刷新可能用了未登录状态
-                        '（例如切到正版页并粘住了正版单选框），这里统一刷回皮肤站显示。
+                        '（例如切到离线页并粘住了离线单选框），这里统一刷回皮肤站显示。
                         '刷新本身失败也不能误报成登录失败，单独吞掉只记日志。
                         Try
                             FrmLaunchLeft.RefreshPage(True, False)
@@ -83,23 +83,8 @@ Public Module ModJdyc
                 MyMsgBox("正在等待浏览器完成皮肤站登录…" & vbCrLf & vbCrLf & "请在浏览器里完成授权，然后回到启动器点我已完成授权。", "正在登录", "我已完成授权", ForceWait:=True)
                 Continue Do
             End If
-            Dim Result = MyMsgBox(
-                "欢迎使用揭东一初 PCL 启动器。" & vbCrLf & vbCrLf &
-                "使用本启动器需要先登录我校皮肤站（mcskin.jdyc.top），" &
-                "并完成学生认证。登录后启动器会自动配好我校皮肤站登陆，" &
-                "不用再像 authlib 那样手动填服务器地址和账号。" & vbCrLf & vbCrLf &
-                "离线登录默认可用，在启动页可以随时切换到离线登录。",
-                "揭东一初皮肤站登录",
-                "我已注册并完成学生认证，登陆", "我要注册")
-            If Result = 2 Then
-                OpenWebsite(JdycSite & "/auth/register")
-                Continue Do
-            End If
-            '只有点“登陆”（Result = 1）才进 OAuth；其他返回值一律重弹，绝不能跳过登录门。
+            '没有额外的欢迎提示：直接开始 OAuth 登录（浏览器授权，本地收 code）。
             '登录全程在后台线程跑，UI 线程只弹弹窗：JdycLogin 本身要求非 UI 线程调用。
-            If Result <> 1 Then
-                Continue Do
-            End If
             LoginTask = Task.Run(Function() JdycLogin())
         Loop
     End Sub
