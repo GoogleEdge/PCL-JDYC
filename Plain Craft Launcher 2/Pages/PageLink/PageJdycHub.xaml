@@ -1,9 +1,20 @@
 <local:MyPageRight
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:PCL" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:PCL" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" x:Class="PageJdycHub"
              d:DesignWidth="800" d:DesignHeight="900">
+    <local:MyPageRight.Resources>
+        <sys:String x:Key="JdycLogoConnect">M4,1C2.89,1 2,1.89 2,3V7C2,8.11 2.89,9 4,9H1V11H13V9H10C11.11,9 12,8.11 12,7V3C12,1.89 11.11,1 10,1H4M4,3H10V7H4V3M3,13V18L3,20H10V18H5V13H3M14,13C12.89,13 12,13.89 12,15V19C12,20.11 12.89,21 14,21H11V23H23V21H20C21.11,21 22,20.11 22,19V15C22,13.89 21.11,13 20,13H14M14,15H20V19H14V15Z</sys:String>
+        <sys:String x:Key="JdycLogoRefresh">M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z</sys:String>
+        <sys:String x:Key="JdycLogoDisconnect">M4,1C2.89,1 2,1.89 2,3V7C2,8.11 2.89,9 4,9H1V11H13V9H10C11.11,9 12,8.11 12,7V3C12,1.89 11.11,1 10,1H4M4,3H10V7H4V3M14,13C12.89,13 12,13.89 12,15V19C12,20.11 12.89,21 14,21H11V23H23V21H20C21.11,21 22,20.11 22,19V15C22,13.89 21.11,13 20,13H14M3.88,13.46L2.46,14.88L4.59,17L2.46,19.12L3.88,20.54L6,18.41L8.12,20.54L9.54,19.12L7.41,17L9.54,14.88L8.12,13.46L6,15.59L3.88,13.46M14,15H20V19H14V15Z</sys:String>
+        <sys:String x:Key="JdycLogoSave">M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z</sys:String>
+        <sys:String x:Key="JdycLogoCreate">M17 14H19V17H22V19H19V22H17V19H14V17H17V14M12 3L22 12H18C14.69 12 12 14.69 12 18C12 18.7 12.12 19.37 12.34 20H5V12H2L12 3Z</sys:String>
+        <sys:String x:Key="JdycLogoJoin">M11 7L9.6 8.4L12.2 11H2V13H12.2L9.6 15.6L11 17L16 12L11 7M20 19H12V21H20C21.1 21 22 20.1 22 19V5C22 3.9 21.1 3 20 3H12V5H20V19Z</sys:String>
+        <sys:String x:Key="JdycLogoCopy">M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z</sys:String>
+        <sys:String x:Key="JdycLogoLeave">M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12M4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z</sys:String>
+        <sys:String x:Key="JdycLogoTest">M4.93,3.93C3.12,5.74 2,8.24 2,11C2,13.76 3.12,16.26 4.93,18.07L6.34,16.66C4.89,15.22 4,13.22 4,11C4,8.79 4.89,6.78 6.34,5.34L4.93,3.93M19.07,3.93L17.66,5.34C19.11,6.78 20,8.79 20,11C20,13.22 19.11,15.22 17.66,16.66L19.07,18.07C20.88,16.26 22,13.76 22,11C22,8.24 20.88,5.74 19.07,3.93M7.76,6.76C6.67,7.85 6,9.35 6,11C6,12.65 6.67,14.15 7.76,15.24L9.17,13.83C8.45,13.11 8,12.11 8,11C8,9.89 8.45,8.89 9.17,8.17L7.76,6.76M16.24,6.76L14.83,8.17C15.55,8.89 16,9.89 16,11C16,12.11 15.55,13.11 14.83,13.83L16.24,15.24C17.33,14.15 18,12.65 18,11C18,9.35 17.33,7.85 16.24,6.76M12,9A2,2 0 0,0 10,11A2,2 0 0,0 12,13A2,2 0 0,0 14,11A2,2 0 0,0 12,9M11,15V19H10A1,1 0 0,0 9,20H2V22H9A1,1 0 0,0 10,23H14A1,1 0 0,0 15,22H22V20H15A1,1 0 0,0 14,19H13V15H11Z</sys:String>
+    </local:MyPageRight.Resources>
     <local:MyScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PanBack">
         <StackPanel x:Name="PanMain" Margin="25,10">
             <local:MyCard Margin="0,15" Title="联机大厅" x:Name="CardStatus">
@@ -11,9 +22,9 @@
                     <TextBlock x:Name="LabStatus" Text="正在连接大厅……" FontSize="14" TextWrapping="Wrap" />
                     <local:MyHint x:Name="HintDeps" Margin="0,12,0,0" Text="" Theme="Yellow" Visibility="Collapsed" />
                     <WrapPanel Margin="0,12,0,0">
-                        <local:MyButton x:Name="BtnConnect" Text="连接大厅" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
-                        <local:MyButton x:Name="BtnRefresh" Text="刷新房间" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
-                        <local:MyButton x:Name="BtnDisconnect" Text="断开" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" ColorType="Red" />
+                        <local:MyButton x:Name="BtnConnect" Logo="{StaticResource JdycLogoConnect}" Text="连接大厅" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                        <local:MyButton x:Name="BtnRefresh" Logo="{StaticResource JdycLogoRefresh}" Text="刷新房间" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" />
+                        <local:MyButton x:Name="BtnDisconnect" Logo="{StaticResource JdycLogoDisconnect}" Text="断开" MinWidth="140" Padding="13,0" Margin="0,0,20,0" Height="35" ColorType="Red" />
                     </WrapPanel>
                     <Grid Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
@@ -23,7 +34,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="服务器地址" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0" />
                         <local:MyTextBox x:Name="TxtServer" Grid.Column="1" MaxLength="200" />
-                        <local:MyButton x:Name="BtnSaveServer" Text="保存" Grid.Column="2" MinWidth="80" Padding="13,0" Margin="12,0,0,0" Height="35" />
+                        <local:MyButton x:Name="BtnSaveServer" Logo="{StaticResource JdycLogoSave}" Text="保存" Grid.Column="2" MinWidth="80" Padding="13,0" Margin="12,0,0,0" Height="35" />
                     </Grid>
                 </StackPanel>
             </local:MyCard>
@@ -50,7 +61,7 @@
                         <TextBlock Text="端口" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0" />
                         <local:MyTextBox x:Name="TxtLocalPort" Grid.Column="1" MaxLength="5" Text="25565" />
                     </Grid>
-                    <local:MyButton x:Name="BtnCreate" Text="创建房间" MinWidth="140" Padding="13,0" Height="35" ColorType="Highlight" HorizontalAlignment="Left" />
+                    <local:MyButton x:Name="BtnCreate" Logo="{StaticResource JdycLogoCreate}" Text="创建房间" MinWidth="140" Padding="13,0" Height="35" ColorType="Highlight" HorizontalAlignment="Left" />
                 </StackPanel>
             </local:MyCard>
             <local:MyCard Margin="0,0,0,15" Title="房间列表" x:Name="CardRooms">
@@ -63,10 +74,10 @@
                 <StackPanel Margin="25,40,25,20">
                     <TextBlock x:Name="LabNetInfo" Text="在房间列表里点一个房间，再点“加入房间”。" FontSize="14" TextWrapping="Wrap" />
                     <WrapPanel Margin="0,12,0,0">
-                        <local:MyButton x:Name="BtnJoin" Text="加入房间" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" />
-                        <local:MyButton x:Name="BtnCopyAddr" Text="复制地址" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" />
-                        <local:MyButton x:Name="BtnLeave" Text="离开房间" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" ColorType="Red" />
-                        <local:MyButton x:Name="BtnTestNet" Text="测试外网联通性" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" ToolTip="向房间的 frp 地址发送 MC 服务器状态检测包，验证外网玩家能否连通。" />
+                        <local:MyButton x:Name="BtnJoin" Logo="{StaticResource JdycLogoJoin}" Text="加入房间" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" />
+                        <local:MyButton x:Name="BtnCopyAddr" Logo="{StaticResource JdycLogoCopy}" Text="复制地址" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" />
+                        <local:MyButton x:Name="BtnLeave" Logo="{StaticResource JdycLogoLeave}" Text="离开房间" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" ColorType="Red" />
+                        <local:MyButton x:Name="BtnTestNet" Logo="{StaticResource JdycLogoTest}" Text="测试外网联通性" MinWidth="140" Padding="13,0" Margin="0,0,20,10" Height="35" ToolTip="向房间的 frp 地址发送 MC 服务器状态检测包，验证外网玩家能否连通。" />
                     </WrapPanel>
                     <TextBlock x:Name="LabTestResult" Text="" FontSize="14" TextWrapping="Wrap" Margin="0,2,0,0" />
                 </StackPanel>

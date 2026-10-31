@@ -25,6 +25,22 @@ Public Class MyButton
     Sub(sender As DependencyObject, e As DependencyPropertyChangedEventArgs)
         If sender IsNot Nothing Then CType(sender, MyButton).LabText.Text = e.NewValue
     End Sub)))
+    Public Property Logo As String
+        Get
+            If ShapeLogo Is Nothing OrElse ShapeLogo.Data Is Nothing Then Return ""
+            Return ShapeLogo.Data.ToString()
+        End Get
+        Set(value As String)
+            If ShapeLogo Is Nothing Then Return
+            If String.IsNullOrEmpty(value) Then
+                ShapeLogo.Data = Nothing
+                ShapeLogo.Visibility = System.Windows.Visibility.Collapsed
+            Else
+                ShapeLogo.Data = (New System.Windows.Media.GeometryConverter).ConvertFromString(value)
+                ShapeLogo.Visibility = System.Windows.Visibility.Visible
+            End If
+        End Set
+    End Property '图标（为空时不显示，不影响原有按钮布局）
     Public Property TextPadding As Thickness
         Get
             Return LabText.Padding

@@ -90,8 +90,28 @@ Public Class MySkin3D
         Else
             AddBox(Mesh, Pixels, W, H, Scale, 4, 8, 12, 24, -2, 2, 40, 16, 4, 4, 12, -1, -1, True)
         End If
-        Dim Brush As New ImageBrush(BmpSource)
-        RenderOptions.SetBitmapScalingMode(Brush, BitmapScalingMode.NearestNeighbor)
+        'WPF 3D 贴图采样固定是线性过滤，RenderOptions.BitmapScalingMode 对 3D 不起作用，
+        '64x64 像素皮肤直接贴图会被线性过滤糊掉。先用最近邻把贴图放大到整数倍（至少 1024 宽），
+        '每个原像素变成实色块；UV 按原比例映射正好落在块边界上，线性过滤不再跨像素混色，边缘保持锐利。
+        '叠加层透明判断仍用原像素数组，不受放大影响。
+        Dim K = If(W >= 1024, 1, (1024 + W - 1) \ W)
+        Dim TW = W * K, TH = H * K
+        Dim DstStride = TW * 4
+        Dim DstPixels(DstStride * TH - 1) As Byte
+        For y = 0 To TH - 1
+            Dim sy = y * H \ TH
+            For x = 0 To TW - 1
+                Dim sx = x * W \ TW
+                Dim s = (sy * W + sx) * 4, d = (y * TW + x) * 4
+                DstPixels(d) = Pixels(s)
+                DstPixels(d + 1) = Pixels(s + 1)
+                DstPixels(d + 2) = Pixels(s + 2)
+                DstPixels(d + 3) = Pixels(s + 3)
+            Next
+        Next
+        Dim UpScaled As New WriteableBitmap(TW, TH, 96, 96, PixelFormats.Bgra32, Nothing)
+        UpScaled.WritePixels(New Int32Rect(0, 0, TW, TH), DstPixels, DstStride, 0)
+        Dim Brush As New ImageBrush(UpScaled)
         Dim Mat As New DiffuseMaterial(Brush)
         ModelView.Content = New GeometryModel3D(Mesh, Mat) With {.BackMaterial = Mat}
     End Sub
