@@ -1,17 +1,32 @@
-# Plain Craft Launcher
+# Plain Craft Launcher · 揭东一初联机大厅版
 
-[![Stars](https://img.shields.io/github/stars/Meloong-Git/PCL?style=flat&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+PHBhdGggZD0iTTggLjI1YS43NS43NSAwIDAgMSAuNjczLjQxOGwxLjg4MiAzLjgxNSA0LjIxLjYxMmEuNzUuNzUgMCAwIDEgLjQxNiAxLjI3OWwtMy4wNDYgMi45Ny43MTkgNC4xOTJhLjc1MS43NTEgMCAwIDEtMS4wODguNzkxTDggMTIuMzQ3bC0zLjc2NiAxLjk4YS43NS43NSAwIDAgMS0xLjA4OC0uNzlsLjcyLTQuMTk0TC44MTggNi4zNzRhLjc1Ljc1IDAgMCAxIC40MTYtMS4yOGw0LjIxLS42MTFMNy4zMjcuNjY4QS43NS43NSAwIDAgMSA4IC4yNVoiIGZpbGw9IiNlYWM1NGYiLz48L3N2Zz4=&logoSize=auto&label=Stars&labelColor=444444&color=eac54f)](https://github.com/Meloong-Git/PCL/)
-[![Issues](https://img.shields.io/github/issues/Meloong-Git/PCL?style=flat&label=Issues&labelColor=444444&color=1F883D)](https://github.com/Meloong-Git/PCL/issues)
-[![哔哩哔哩](https://img.shields.io/badge/动态-BiliBili-00A4DB?style=flat&labelColor=444444&logoSize=auto)](https://space.bilibili.com/11343203/dynamic)
-[![爱发电](https://img.shields.io/badge/赞助-爱发电-946ce6?style=flat&labelColor=444444&logoSize=auto)](https://meloong.com/afd/a/LTCat)
+欢迎来到咱们学校定制版的 PCL！这是基于上游 Meloong-Git/PCL 2.99.0.1 改的版本，专门给揭东一初的同学联机用的：登录用学校皮肤站账号，顶栏“联机”点进去就是学校联机大厅，开房进房都在里面搞定。
 
-包含 PCL 的大部分源代码，包括 UI 库、动画模块、下载模块、Minecraft 启动模块等！<br/>
-代码并不是实时更新的，它会在每次 PCL 发布更新时同步一次。<br/>
-非常感谢社区的大力支持！
+## 这个版本多了啥
 
-<br/>
+- **皮肤站登录**：用学校皮肤站（mcskin.jdyc.top）的账号登录，先在皮肤站完成注册和学生认证，就能直接用大厅。
+- **联机大厅**：顶栏“联机”就是联机大厅（Minecraft），建房、进房、复制地址都在大厅页里完成；登录态和皮肤站是通的，不用二次弹浏览器登录，也不用重复学生认证。
+- **角色与皮肤**：启动页右侧有 3D 皮肤预览，拖动可以旋转查看。
+- **联网组件全在包里**：jdyc-core.dll、frpc.exe、edge.exe、TAP 安装文件都在 zip 里，解压到同一目录就能用（frp 端口映射 / vlan 虚拟局域网两种模式）。
 
-### 相关资源
-- [PCL 下载](https://meloong.com/pcl)：下载可免费使用的正式版 PCL！
-- [PCL 功能投票](https://github.com/Meloong-Git/PCL/discussions/2)：来参加投票吧，开发者会优先处理票数较高的项目！
-- [帮助文档库](https://github.com/LTCatt/PCL2Help)：PCL 内置帮助文档的存储库
+## 怎么玩
+
+去 Release 页下载 `JDYC-PCL-Hub-v2.99.0.1.zip`，解压到同一目录后运行里面的 exe，然后：登录皮肤站账号 → 点顶栏“联机” → 建个房（frp 模式填本机游戏端口；vlan 模式会自动进虚拟局域网）→ 小伙伴从房间页复制地址，直接连进来开玩！
+
+大厅服务端默认 hub.jdyc.top，可在大厅页修改。
+
+## 想一起开发？
+
+- 启动器源码在 `Plain Craft Launcher 2/`，联网核心源码在 `jdyc-core/`。
+- 推标签 `v2.99.0.1-jdyc-hub` 会自动编译并发布 Release。
+
+## 小提示
+
+- 适度游戏，注意休息，别玩到太晚。
+- 联机时文明交流，友好相处。
+- 本项目为校内教学联机工具，仅供学习交流；请遵守微软服务条款与当地法规。
+
+## 相关资源
+
+- [PCL 帮助文档库](https://github.com/LTCatt/PCL2Help)：PCL 内置帮助文档的存储库
+- 上游原版：[Meloong-Git/PCL](https://github.com/Meloong-Git/PCL)
