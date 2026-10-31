@@ -120,15 +120,18 @@ Public Module ModMcPing
     '-------------------- MC 协议编码（VarInt / 字符串 / 大端整数） --------------------
 
     Private Sub WriteVarInt(Stream As MemoryStream, Value As Integer)
-        Dim U As UInteger = CUInt(Value)
+        '协议版本 -1 等负数不能直接转 UInteger（VB 默认检查溢出会抛“算术运算导致溢出”），
+        '先用 Long 拓宽再按无符号 32 位处理，全程不经过有符号到无符号的转换。
+        Dim U As Long = Value
+        If U < 0 Then U += 4294967296L
         While True
-            Dim B As UInteger = U And &H7FUI
+            Dim B As Long = U And &H7FL
             U >>= 7
             If U = 0 Then
                 Stream.WriteByte(CByte(B))
                 Return
             End If
-            Stream.WriteByte(CByte(B Or &H80UI))
+            Stream.WriteByte(CByte(B Or &H80L))
         End While
     End Sub
 
@@ -144,6 +147,7 @@ Public Module ModMcPing
             Shift += 7
             If Shift >= 35 Then Throw New InvalidDataException("VarInt 过长")
         End While
+        If Result > 4294967295L Then Throw New InvalidDataException("VarInt 过大")
         If Result >= 2147483648L Then Result -= 4294967296L
         Return CInt(Result)
     End Function
@@ -159,6 +163,7 @@ Public Module ModMcPing
             Shift += 7
             If Shift >= 35 Then Throw New InvalidDataException("VarInt 过长")
         End While
+        If Result > 4294967295L Then Throw New InvalidDataException("VarInt 过大")
         If Result >= 2147483648L Then Result -= 4294967296L
         Return CInt(Result)
     End Function
@@ -171,7 +176,8 @@ Public Module ModMcPing
 
     Private Function ReadMcString(Data As Byte(), ByRef Pos As Integer) As String
         Dim Length = ReadVarInt(Data, Pos)
-        If Length < 0 OrElse Pos + Length > Data.Length Then Throw New IOException("字符串长度异常")
+        '用减法比较，避免 Pos + Length 在畸形大长度时整数溢出。
+        If Length < 0 OrElse Length > Data.Length - Pos Then Throw New IOException("字符串长度异常")
         Dim Text = Encoding.UTF8.GetString(Data, Pos, Length)
         Pos += Length
         Return Text
