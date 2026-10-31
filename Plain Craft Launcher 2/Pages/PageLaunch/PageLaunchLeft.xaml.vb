@@ -1,4 +1,4 @@
-Imports System.Windows.Threading
+﻿Imports System.Windows.Threading
 
 Public Class PageLaunchLeft
 
@@ -109,7 +109,9 @@ Public Class PageLaunchLeft
 
         '改变页面
         Dim LoginType = Settings.Get(Of McLoginType)("LoginType")
-        If LoginType = McLoginType.Legacy OrElse LoginType = McLoginType.Ms OrElse LoginType = McLoginType.Jdyc Then CType(FindName("RadioLoginType" & LoginType), MyRadioButton).Checked = True
+        '正版登录已移除：老存档里仍是正版时回落到皮肤站，避免去找已删的正版单选框
+        If LoginType = McLoginType.Ms Then LoginType = McLoginType.Jdyc : Settings.Set("LoginType", McLoginType.Jdyc)
+        If LoginType = McLoginType.Legacy OrElse LoginType = McLoginType.Jdyc Then CType(FindName("RadioLoginType" & LoginType), MyRadioButton).Checked = True
         RefreshPage(False, False)
 
         AniControlEnabled -= 1
@@ -125,8 +127,6 @@ Public Class PageLaunchLeft
         Select Case Settings.Get(Of McLoginType)("LoginType")
             Case McLoginType.Legacy
                 LabLaunchingMethod.Text = "离线登录"
-            Case McLoginType.Ms
-                LabLaunchingMethod.Text = "正版登录"
             Case McLoginType.Nide
                 LabLaunchingMethod.Text = "统一通行证"
             Case McLoginType.Auth
@@ -306,57 +306,35 @@ Public Class PageLaunchLeft
             LoginPageType = Settings.Get(Of Integer)("LoginPageType")
         End If
         Select Case LoginPageType
-            Case 0 '正版、皮肤站或离线
+            Case 0 '皮肤站或离线
 UnknownType:
-                '登录门已完成但单选框仍粘在正版时（登录门完成前跑过的刷新会留下这种不一致），
-                '以实际登录态为准刷回皮肤站；用户本会话内主动点正版时 LoginType 已是 Ms，不受影响。
+                '登录门已完成但单选框仍未切到皮肤站时（登录门完成前跑过的刷新会留下这种不一致），
+                '以实际登录态为准刷回皮肤站。
                 If JdycIsLoggedIn() AndAlso Settings.Get(Of McLoginType)("LoginType") = McLoginType.Jdyc AndAlso Not RadioLoginType6.Checked Then
                     RadioLoginType6.Checked = True
                 End If
-                If RadioLoginType5.Checked Then
-                    If Settings.Get(Of String)("CacheMsV2Access") = "" Then
-                        Type = PageType.Ms
-                    Else
-                        Type = PageType.MsSkin
-                    End If
-                    Settings.Set("LoginType", McLoginType.Ms)
-                ElseIf RadioLoginType6.Checked Then
+                If RadioLoginType6.Checked Then
                     Type = PageType.JdycSkin
                     Settings.Set("LoginType", McLoginType.Jdyc)
                 ElseIf JdycAllowOffline() Then
                     Type = PageType.Legacy
                     Settings.Set("LoginType", McLoginType.Legacy)
                 Else
-                    '离线未打开：之前选了离线时回落到皮肤站（已登录）或正版
-                    If JdycIsLoggedIn() Then
-                        Type = PageType.JdycSkin
-                        Settings.Set("LoginType", McLoginType.Jdyc)
-                    Else
-                        If Settings.Get(Of String)("CacheMsV2Access") = "" Then
-                            Type = PageType.Ms
-                        Else
-                            Type = PageType.MsSkin
-                        End If
-                        Settings.Set("LoginType", McLoginType.Ms)
-                    End If
+                    '离线未打开：回落到皮肤站；未登录时显示皮肤站页，登录由点启动时的皮肤站登录门完成
+                    Type = PageType.JdycSkin
+                    Settings.Set("LoginType", McLoginType.Jdyc)
                 End If
                 PanType.Visibility = Visibility.Visible
                 PanTypeOne.Visibility = Visibility.Collapsed
-                RadioLoginType5.Visibility = Visibility.Visible
                 RadioLoginType6.Visibility = Visibility.Visible
                 RadioLoginType0.Visibility = If(JdycAllowOffline(), Visibility.Visible, Visibility.Collapsed)
-            Case 1 '仅正版
-                If Settings.Get(Of String)("CacheMsV2Access") = "" Then
-                    Type = PageType.Ms
-                Else
-                    Type = PageType.MsSkin
-                End If
-                Settings.Set("LoginType", McLoginType.Ms)
+            Case 1 '仅皮肤站（原“仅正版”，正版登录已移除）
+                Type = PageType.JdycSkin
+                Settings.Set("LoginType", McLoginType.Jdyc)
                 PanType.Visibility = Visibility.Collapsed
                 PanTypeOne.Visibility = Visibility.Visible
                 PathTypeOne.Data = (New GeometryConverter).ConvertFromString(Logo.IconButtonShield)
-                LabTypeOne.Text = "正版登录"
-                RadioLoginType5.Visibility = Visibility.Visible
+                LabTypeOne.Text = "皮肤站登录"
                 RadioLoginType0.Visibility = Visibility.Collapsed
             Case 2 '仅离线
                 Type = PageType.Legacy
@@ -404,7 +382,7 @@ UnknownType:
         Dim Control As MyRadioButton = FindName("RadioLoginType" & Settings.Get(Of McLoginType)("LoginType"))
         If Control IsNot Nothing Then Control.Checked = True
     End Sub
-    Private Sub RadioLoginType_Change(sender As Object, raiseByMouse As Boolean) Handles RadioLoginType0.Check, RadioLoginType5.Check
+    Private Sub RadioLoginType_Change(sender As Object, raiseByMouse As Boolean) Handles RadioLoginType0.Check
         If raiseByMouse Then RefreshPage(True, True)
     End Sub
 

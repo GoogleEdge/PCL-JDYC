@@ -1,4 +1,4 @@
-<local:MyPageRight
+﻿<local:MyPageRight
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:PCL" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -168,8 +168,8 @@
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Text="登录方式" Margin="0,0,25,0" />
                         <local:MyComboBox x:Name="ComboServerLogin" Grid.Row="0" Grid.ColumnSpan="2" Grid.Column="1">
-                            <local:MyComboBoxItem Content="正版登录或离线登录" IsSelected="True" />
-                            <local:MyComboBoxItem Content="仅正版登录" />
+                            <local:MyComboBoxItem Content="皮肤站登录或离线登录" IsSelected="True" />
+                            <local:MyComboBoxItem Content="仅皮肤站登录" />
                             <local:MyComboBoxItem Content="仅离线登录" />
                             <local:MyComboBoxItem Content="第三方登录：统一通行证" />
                             <local:MyComboBoxItem Content="第三方登录：Authlib Injector 或 LittleSkin" />

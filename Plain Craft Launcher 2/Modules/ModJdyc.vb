@@ -1,4 +1,4 @@
-Imports System.Net
+﻿Imports System.Net
 Imports System.Security.Cryptography
 Imports System.Text
 Imports Newtonsoft.Json.Linq
@@ -92,7 +92,6 @@ Public Module ModJdyc
                 "使用本启动器需要先登录我校皮肤站（mcskin.jdyc.top），" &
                 "并完成学生认证。登录后启动器会自动配好我校皮肤站登陆，" &
                 "不用再像 authlib 那样手动填服务器地址和账号。" & vbCrLf & vbCrLf &
-                "正版登录不受本弹窗影响，登录后仍可在启动页选择正版；" &
                 "离线登录默认不可用，需要在设置里打开后才能使用。",
                 "揭东一初皮肤站登录",
                 "我已注册并完成学生认证，登陆", "我要注册")
