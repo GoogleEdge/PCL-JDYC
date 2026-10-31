@@ -316,18 +316,18 @@ UnknownType:
                 If RadioLoginType6.Checked Then
                     Type = PageType.JdycSkin
                     Settings.Set("LoginType", McLoginType.Jdyc)
-                ElseIf JdycAllowOffline() Then
+                ElseIf RadioLoginType0.Checked Then
                     Type = PageType.Legacy
                     Settings.Set("LoginType", McLoginType.Legacy)
                 Else
-                    '离线未打开：回落到皮肤站；未登录时显示皮肤站页，登录由点启动时的皮肤站登录门完成
+                    '未选任何方式时默认皮肤站
                     Type = PageType.JdycSkin
                     Settings.Set("LoginType", McLoginType.Jdyc)
                 End If
                 PanType.Visibility = Visibility.Visible
                 PanTypeOne.Visibility = Visibility.Collapsed
                 RadioLoginType6.Visibility = Visibility.Visible
-                RadioLoginType0.Visibility = If(JdycAllowOffline(), Visibility.Visible, Visibility.Collapsed)
+                RadioLoginType0.Visibility = Visibility.Visible
             Case 1 '仅皮肤站（原“仅正版”，正版登录已移除）
                 Type = PageType.JdycSkin
                 Settings.Set("LoginType", McLoginType.Jdyc)

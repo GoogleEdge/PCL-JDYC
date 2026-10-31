@@ -63,13 +63,6 @@
                     </StackPanel>
                 </Grid>
             </local:MyCard>
-            <local:MyCard Margin="0,8" Title="登录规则">
-                <Grid Margin="25,40,25,17">
-                    <StackPanel>
-                        <local:MyCheckBox Height="28" Text="允许离线登录（默认关闭）" local:SettingService.Key="JdycAllowOffline" ToolTip="默认关闭：启动页不显示离线选项；皮肤站登录不需要打开离线开关就能用，打开后离线登录才出现。" />
-                    </StackPanel>
-                </Grid>
-            </local:MyCard>
             <local:MyCard Margin="0,0,0,8" Title="启动日志" x:Name="PanLog">
                 <local:MyTextBox x:Name="LabLog" Margin="15,34,15,13" Padding="0,4" IsReadOnly="True" IsUndoEnabled="False"
                          AcceptsReturn="True" TextWrapping="Wrap" BorderThickness="0" HasBackground="False"

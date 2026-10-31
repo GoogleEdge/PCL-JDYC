@@ -21,10 +21,6 @@ Public Module ModJdyc
     '请求正确拼写的 Closet.ReadWrite 会被 Passport 以 invalid_scope 拒绝，故此处必须用服务器实际注册的拼写。
     Public Const JdycScopes As String = "User.Read Player.Read Player.ReadWrite Closet.Read Closet.ReadWrtie"
 
-    ''' <summary>离线登录是否被允许。默认关：只有在设置里打开后，离线登录才可用。</summary>
-    Public Function JdycAllowOffline() As Boolean
-        Return Settings.Get(Of Boolean)("JdycAllowOffline")
-    End Function
 
     ''' <summary>是否已完成皮肤站登录（持有 token 且学生认证通过）。</summary>
     Public Function JdycIsLoggedIn() As Boolean
@@ -92,7 +88,7 @@ Public Module ModJdyc
                 "使用本启动器需要先登录我校皮肤站（mcskin.jdyc.top），" &
                 "并完成学生认证。登录后启动器会自动配好我校皮肤站登陆，" &
                 "不用再像 authlib 那样手动填服务器地址和账号。" & vbCrLf & vbCrLf &
-                "离线登录默认不可用，需要在设置里打开后才能使用。",
+                "离线登录默认可用，在启动页可以随时切换到离线登录。",
                 "揭东一初皮肤站登录",
                 "我已注册并完成学生认证，登陆", "我要注册")
             If Result = 2 Then
