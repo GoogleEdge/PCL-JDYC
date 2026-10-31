@@ -51,13 +51,6 @@ jobs:
       - name: Build
         run: msbuild "Plain Craft Launcher 2\Plain Craft Launcher 2.vbproj" -p:Configuration=Release
 
-      - name: Checkout coop-hub (jdyc-core source)
-        uses: actions/checkout@v6
-        with:
-          repository: GoogleEdge/coop-hub
-          path: coop-hub
-          ref: main
-
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -71,8 +64,8 @@ jobs:
       - shell: msys2 {0}
         name: 编译 jdyc-core.dll
         run: |
-          cmake -S coop-hub/core -B coop-hub/core/build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
-          cmake --build coop-hub/core/build -j
+          cmake -S jdyc-core -B jdyc-core/build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake --build jdyc-core/build -j
 
       - shell: msys2 {0}
         name: 编译 n2n edge.exe (v3.1.1)
@@ -95,7 +88,7 @@ jobs:
           Expand-Archive frp.zip -DestinationPath frp
           New-Item -Force deps -ItemType Directory | Out-Null
           Copy-Item (Get-ChildItem frp -Recurse -Filter frpc.exe | Select-Object -First 1).FullName deps/
-          Copy-Item coop-hub/core/build/jdyc-core.dll deps/
+          Copy-Item jdyc-core/build/jdyc-core.dll deps/
           Copy-Item C:\n2n\edge.exe deps/
           # 注意：必须用 dist.win10（Win10/11 驱动包），之前用的 dist.win7 在 Win10/11 上装不上，
           # 即使用管理员运行也会报 TAP 安装失败。win10 包里的工具改名叫 devcon.exe，功能与 tapinstall 相同，
